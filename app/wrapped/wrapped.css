@@ -1,0 +1,28 @@
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #102622; color: #f7ebca; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+.swipeDeck { height: 100svh; overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior-y: contain; }
+.deckCard { position: relative; min-height: 100svh; padding: clamp(24px, 6vw, 72px); display: grid; place-items: center; scroll-snap-align: start; scroll-snap-stop: always; overflow: hidden; }
+.deckCard:nth-child(3n+2) { background: #d9653b; color: #172e29; }
+.deckCard:nth-child(3n) { background: #e8cc83; color: #17332e; }
+.swipeHint { position: absolute; bottom: 18px; left: 50%; translate: -50%; text-transform: uppercase; letter-spacing: .28em; font-size: 10px; opacity: .55; }
+.openingFrame { width: min(82vw, 430px); aspect-ratio: 5 / 7; position: relative; border-radius: 18px; overflow: hidden; box-shadow: 0 24px 80px #0008; }
+.openingFrame img { width: 100%; height: 100%; object-fit: cover; }
+.engraving { position: absolute; inset: auto 28px 26px; display: flex; flex-direction: column; text-shadow: 0 2px 18px #000; }
+.engraving strong { font: 700 clamp(28px, 7vw, 52px)/.95 Georgia, serif; }
+.engraving span { margin-top: 10px; letter-spacing: .16em; font-size: 11px; text-transform: uppercase; }
+.fieldNote { width: min(85vw, 680px); border: 2px solid currentColor; padding: clamp(30px, 7vw, 70px); transform: rotate(-1deg); box-shadow: 12px 14px 0 color-mix(in srgb, currentColor 28%, transparent); }
+.kicker { letter-spacing: .23em; font-size: 12px; font-weight: 800; }
+.fieldNote h2 { font: 500 clamp(44px, 10vw, 90px)/.98 Georgia, serif; letter-spacing: -.04em; margin: 18vh 0 12vh; }
+.rule { width: 72px; height: 3px; background: currentColor; }
+.caption { max-width: 290px; line-height: 1.5; font-size: 13px; opacity: .7; }
+.stripPanel { width: min(92vw, 510px); text-align: center; }
+.stripPanel img { display: block; width: min(62vw, 340px); max-height: 70svh; object-fit: contain; margin: 26px auto; box-shadow: 0 25px 70px #0009; }
+.stripActions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+button, .lastCard a { border: 0; border-radius: 999px; padding: 13px 20px; background: #f3d990; color: #19352f; font-weight: 800; cursor: pointer; text-decoration: none; }
+.quietButton { background: transparent; color: inherit; border: 1px solid currentColor; }
+.lastCard { width: min(84vw, 620px); }
+.lastCard p { font: 24px/1.4 Georgia, serif; opacity: .72; }
+.lastCard h2 { font: 500 clamp(46px, 11vw, 88px)/.98 Georgia, serif; margin: 22vh 0 11vh; }
+.lastCard h2 span { font-size: .45em; opacity: .65; }
+@media (prefers-reduced-motion: reduce) { .swipeDeck { scroll-behavior: auto; } }

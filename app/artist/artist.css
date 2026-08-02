@@ -1,0 +1,19 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #eee3c3; color: #17352f; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+.artistShell { min-height: 100svh; padding: clamp(28px, 6vw, 80px); background: linear-gradient(130deg, transparent 70%, #db6a43 70%); }
+.artistShell header { max-width: 780px; margin-bottom: 55px; }
+.artistShell header span, .copyPreview > span { letter-spacing: .25em; font-size: 11px; font-weight: 900; }
+.artistShell h1 { font: 500 clamp(48px, 9vw, 96px)/.92 Georgia, serif; letter-spacing: -.05em; margin: 20px 0; }
+.artistShell header p { font: 21px/1.4 Georgia, serif; }
+.artistShell form { width: min(100%, 900px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; padding: clamp(25px, 5vw, 55px); border: 2px solid #17352f; background: #f5edda; box-shadow: 16px 18px 0 #17352f; }
+.artistShell label { display: grid; gap: 9px; font-size: 12px; text-transform: uppercase; letter-spacing: .13em; font-weight: 800; }
+.artistShell .wide { grid-column: 1 / -1; }
+.artistShell select, .artistShell textarea { width: 100%; border: 1px solid #6b796d; border-radius: 0; background: transparent; color: inherit; padding: 14px; font: 17px/1.4 Georgia, serif; }
+.artistShell textarea { min-height: 110px; resize: vertical; }
+.artistShell button { justify-self: start; border: 0; border-radius: 99px; background: #17352f; color: #f5edda; padding: 14px 22px; font-weight: 800; cursor: pointer; }
+.artistShell button:disabled { opacity: .55; }
+.copyPreview { width: min(100%, 780px); margin: 75px 0 40px; padding: clamp(25px, 5vw, 55px); background: #d96842; color: #182f2a; }
+.copyPreview h2 { font: 500 clamp(32px, 6vw, 56px)/1.05 Georgia, serif; }
+.copyPreview p { font: 20px/1.4 Georgia, serif; }
+.copyPreview small { display: block; margin-top: 25px; opacity: .65; }
+@media (max-width: 650px) { .artistShell form { grid-template-columns: 1fr; } .artistShell .wide { grid-column: auto; } }
