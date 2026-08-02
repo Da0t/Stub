@@ -22,4 +22,18 @@ describe('fixture claim adapter', () => {
     expect(first.id).toBe(second.id);
     expect(first.setId).toBe('set-1');
   });
+
+  it('scopes dedupe to user and keeps the claimed variant authoritative', async () => {
+    const client = createFixtureMintClient();
+    const otherClaim: ClaimMintArgs = {
+      ...claim,
+      userId: 'user-2',
+      frameVariant: 'disco_bison',
+      renderInput: { ...claim.renderInput, photoUrl: 'blob:user-2-photo' },
+    };
+    const [first, second] = await Promise.all([client.claim(claim), client.claim(otherClaim)]);
+    expect(first.id).not.toBe(second.id);
+    expect(second.photoUrl).toBe('blob:user-2-photo');
+    expect(second.frameVariant).toBe('disco_bison');
+  });
 });

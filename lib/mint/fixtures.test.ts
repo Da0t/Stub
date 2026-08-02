@@ -28,6 +28,17 @@ describe('rarityScore', () => {
     expect(score).toBeGreaterThan(0);
     expect(score).toBeLessThanOrEqual(1);
   });
+
+  it('drops unknown optional facts instead of treating them as false', () => {
+    const unknown = rarityScore({ ...base, estimatedAudience: 1_000 }, { concurrentHeadlinerRunning: false });
+    const knownAbsent = rarityScore(
+      { ...base, estimatedAudience: 1_000, hasSurpriseGuest: false } as SetRecord,
+      { concurrentHeadlinerRunning: false },
+    );
+    expect(unknown).toBeGreaterThan(knownAbsent);
+    expect(rarityScore({ ...base, estimatedAudience: 0 }, { concurrentHeadlinerRunning: false }))
+      .toBe(rarityScore({ ...base, estimatedAudience: null }, { concurrentHeadlinerRunning: false }));
+  });
 });
 
 describe('pickFrameVariant', () => {
@@ -42,5 +53,15 @@ describe('pickFrameVariant', () => {
     );
     expect(results).not.toContain('field_notes');
     expect(results).toContain('disco_bison');
+  });
+
+  it('keeps disco bison near five percent even when other variants are boosted', () => {
+    const contextual = { ...base, isHeadliner: true, estimatedAudience: 900 };
+    const results = Array.from({ length: 10_000 }, (_, index) =>
+      pickFrameVariant(contextual, 0.95, `distribution-user-${index}:set-1`),
+    );
+    const ratio = results.filter((variant) => variant === 'disco_bison').length / results.length;
+    expect(ratio).toBeGreaterThan(0.04);
+    expect(ratio).toBeLessThan(0.06);
   });
 });

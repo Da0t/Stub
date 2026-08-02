@@ -12,6 +12,7 @@ import {
   persistClaimed,
 } from '@/lib/mint/machine';
 import { pickFrameVariant } from '@/lib/mint/variants';
+import { useDialogFocus } from '@/lib/mint/useDialogFocus';
 import styles from './mint.module.css';
 
 function labels(set: SetRecord, dwellSeconds: number) {
@@ -52,6 +53,7 @@ export function SpinSheet({
   const [card, setCard] = useState<ShelfCard | null>(null);
   const inFlight = useRef<Promise<ShelfCard> | null>(null);
   const storage = useMemo(() => browserPendingMintStorage(), []);
+  const dialogRef = useDialogFocus<HTMLElement>(Boolean(mintable && set), onClose);
   const variant = useMemo(
     () => mintable && set
       ? pickFrameVariant(set, mintable.rarityScore, `${userSeed}:${mintable.setId}`)
@@ -106,6 +108,7 @@ export function SpinSheet({
   return (
     <div className={styles.sheetBackdrop} role="presentation" onMouseDown={onClose}>
       <section
+        ref={dialogRef}
         className={styles.sheet}
         role="dialog"
         aria-modal="true"

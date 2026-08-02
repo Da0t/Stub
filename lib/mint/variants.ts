@@ -19,19 +19,21 @@ function hashToUnitInterval(seed: string): number {
   return (hash >>> 0) / 0x1_0000_0000;
 }
 
+const LOS_ANGELES_HOUR = new Intl.DateTimeFormat('en-US', {
+  hour: '2-digit',
+  hourCycle: 'h23',
+  timeZone: 'America/Los_Angeles',
+});
+
 function localHour(timestamp: number): number {
-  const hour = new Intl.DateTimeFormat('en-US', {
-    hour: '2-digit',
-    hourCycle: 'h23',
-    timeZone: 'America/Los_Angeles',
-  }).format(timestamp);
+  const hour = LOS_ANGELES_HOUR.format(timestamp);
   return Number(hour);
 }
 
 /** Contextual, deterministic selection. `field_notes` is never in the draw. */
 export function pickFrameVariant(
   set: SetRecord,
-  rarity: number,
+  _rarity: number,
   seed: string,
 ): FrameVariant {
   const weights = { ...BASE_WEIGHTS };
@@ -40,12 +42,14 @@ export function pickFrameVariant(
     weights.trail_marker *= 2;
   }
   if (localHour(set.startTime) >= 19) weights.fog_layer *= 2.5;
-  if (rarity > 0.7) weights.trail_marker *= 1.15;
-
-  // The joke card remains a flat five-point weight: never boosted or suppressed.
-  const entries = Object.entries(weights) as Array<[MintedFrameVariant, number]>;
+  // Reserve an absolute 5% probability before normalizing contextual weights.
+  // Boosting a headliner or night frame must never suppress the joke card.
+  const roll = hashToUnitInterval(seed);
+  if (roll < BASE_WEIGHTS.disco_bison) return 'disco_bison';
+  const entries = (Object.entries(weights) as Array<[MintedFrameVariant, number]>)
+    .filter(([variant]) => variant !== 'disco_bison');
   const total = entries.reduce((sum, [, weight]) => sum + weight, 0);
-  let cursor = hashToUnitInterval(seed) * total;
+  let cursor = ((roll - BASE_WEIGHTS.disco_bison) / (1 - BASE_WEIGHTS.disco_bison)) * total;
   for (const [variant, weight] of entries) {
     cursor -= weight;
     if (cursor < 0) return variant;

@@ -60,23 +60,27 @@ export interface PendingMintStorage {
 }
 
 export function browserPendingMintStorage(prefix = 'wrapped:pending-mint:'): PendingMintStorage {
-  const storage = () => (typeof window === 'undefined' ? null : window.localStorage);
+  const storage = () => {
+    try { return typeof window === 'undefined' ? null : window.localStorage; } catch { return null; }
+  };
   return {
     read(setId) {
-      const raw = storage()?.getItem(prefix + setId);
+      let raw: string | null | undefined;
+      try { raw = storage()?.getItem(prefix + setId); } catch { return null; }
       if (!raw) return null;
       try {
         const value = JSON.parse(raw) as PendingMintRecord;
-        return value.setId === setId ? value : null;
+        return value.setId === setId && (value.claimedAt === null || typeof value.claimedAt === 'number')
+          ? value : null;
       } catch {
         return null;
       }
     },
     write(record) {
-      storage()?.setItem(prefix + record.setId, JSON.stringify(record));
+      try { storage()?.setItem(prefix + record.setId, JSON.stringify(record)); } catch { /* server remains source of truth */ }
     },
     remove(setId) {
-      storage()?.removeItem(prefix + setId);
+      try { storage()?.removeItem(prefix + setId); } catch { /* no-op */ }
     },
   };
 }

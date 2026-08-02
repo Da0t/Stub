@@ -30,11 +30,16 @@ export function rarityScore(
   const facts: Array<{ weight: number; value: number }> = [
     { weight: 0.18, value: set.isFestivalDebut ? 1 : 0 },
     { weight: 0.17, value: set.isFinalShow ? 1 : 0 },
-    { weight: 0.1, value: source.hasSurpriseGuest ? 1 : 0 },
     { weight: 0.1, value: ctx.concurrentHeadlinerRunning ? 1 : 0 },
   ];
 
-  if (set.estimatedAudience !== null && Number.isFinite(set.estimatedAudience)) {
+  // This field is optional until the setlist feed publishes it. Missing means
+  // unknown, not false, so its weight must disappear from the denominator.
+  if (typeof source.hasSurpriseGuest === 'boolean') {
+    facts.push({ weight: 0.1, value: source.hasSurpriseGuest ? 1 : 0 });
+  }
+
+  if (set.estimatedAudience !== null && Number.isFinite(set.estimatedAudience) && set.estimatedAudience > 0) {
     facts.push({ weight: 0.45, value: inverseAudienceScore(set.estimatedAudience) });
   } else {
     // Across an audience-less grid, headliner status is the only deterministic

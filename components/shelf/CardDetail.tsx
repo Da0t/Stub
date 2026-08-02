@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { ShelfCard } from '@/lib/mint/contracts';
+import { useDialogFocus } from '@/lib/mint/useDialogFocus';
 import { CardTile, type CardRenderer } from './CardTile';
 import styles from './shelf.module.css';
 
@@ -15,18 +16,14 @@ export function CardDetail({
   onClose(): void;
 }) {
   const [showBack, setShowBack] = useState(false);
+  const dialogRef = useDialogFocus<HTMLElement>(Boolean(card), onClose);
   useEffect(() => setShowBack(false), [card]);
-  useEffect(() => {
-    if (!card) return;
-    const closeOnEscape = (event: KeyboardEvent) => event.key === 'Escape' && onClose();
-    window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
-  }, [card, onClose]);
   if (!card) return null;
 
   return (
     <div className={styles.backdrop} role="presentation" onMouseDown={onClose}>
       <section
+        ref={dialogRef}
         className={styles.detail}
         role="dialog"
         aria-modal="true"

@@ -78,8 +78,16 @@ export interface FixtureMintClientOptions {
  * replace this object with one whose hooks call Convex useQuery/useMutation.
  */
 export function createFixtureMintClient(options: FixtureMintClientOptions = {}): MintClient {
-  let shelf = [...(options.shelf ?? [])];
-  let mintableNow = [...(options.mintableNow ?? [])];
+  const shelves = new Map<string, ShelfCard[]>();
+  const mintables = new Map<string, Mintable[]>();
+  const shelfFor = (userId: string) => {
+    if (!shelves.has(userId)) shelves.set(userId, [...(options.shelf ?? [])]);
+    return shelves.get(userId)!;
+  };
+  const mintablesFor = (userId: string) => {
+    if (!mintables.has(userId)) mintables.set(userId, [...(options.mintableNow ?? [])]);
+    return mintables.get(userId)!;
+  };
   const listeners = new Set<() => void>();
   const emit = () => listeners.forEach((listener) => listener());
   const subscribe = (listener: () => void) => {
@@ -88,30 +96,31 @@ export function createFixtureMintClient(options: FixtureMintClientOptions = {}):
   };
 
   return {
-    useShelf() {
-      return useSyncExternalStore(subscribe, () => shelf, () => shelf);
+    useShelf(userId) {
+      return useSyncExternalStore(subscribe, () => shelfFor(userId), () => shelfFor(userId));
     },
-    useMintableNow() {
-      return useSyncExternalStore(subscribe, () => mintableNow, () => mintableNow);
+    useMintableNow(userId) {
+      return useSyncExternalStore(subscribe, () => mintablesFor(userId), () => mintablesFor(userId));
     },
     async claim(args) {
-      const existing = shelf.find((card) => card.setId === args.mintable.setId);
+      const existing = shelfFor(args.userId).find((card) => card.setId === args.mintable.setId);
       if (existing) return existing;
       if (options.latencyMs) {
         await new Promise((resolve) => setTimeout(resolve, options.latencyMs));
       }
       // Recheck after the await so two fast calls still reconcile to one card.
-      const raced = shelf.find((card) => card.setId === args.mintable.setId);
+      const raced = shelfFor(args.userId).find((card) => card.setId === args.mintable.setId);
       if (raced) return raced;
       const card: ShelfCard = {
+        ...args.renderInput,
+        frameVariant: args.frameVariant,
         id: `fixture-${args.userId}-${args.mintable.setId}`,
         setId: args.mintable.setId,
         mintedAt: Date.now(),
         dwellSeconds: args.mintable.dwellSeconds,
-        ...args.renderInput,
       };
-      shelf = [card, ...shelf];
-      mintableNow = mintableNow.filter((item) => item.setId !== card.setId);
+      shelves.set(args.userId, [card, ...shelfFor(args.userId)]);
+      mintables.set(args.userId, mintablesFor(args.userId).filter((item) => item.setId !== card.setId));
       emit();
       return card;
     },

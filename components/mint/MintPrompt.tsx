@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect, useMemo } from 'react';
 import type { Mintable } from '@/lib/mint/contracts';
+import { browserPendingMintStorage, persistAvailable } from '@/lib/mint/machine';
 import styles from './mint.module.css';
 
 export function MintPrompt({
@@ -10,6 +12,15 @@ export function MintPrompt({
   mintables: Mintable[] | undefined;
   onOpen(mintable: Mintable): void;
 }) {
+  const storage = useMemo(() => browserPendingMintStorage(), []);
+  useEffect(() => {
+    for (const mintable of mintables ?? []) {
+      if (mintable.state === 'AVAILABLE') persistAvailable(storage, mintable.setId);
+    }
+  }, [mintables, storage]);
+  // The server query owns minted-vs-available truth. Local persistence only
+  // ensures an earned unspun card survives offline; reading it during SSR would
+  // also make hydration depend on device-local state.
   const available = mintables?.filter((mintable) => mintable.state === 'AVAILABLE') ?? [];
   if (available.length === 0) return null;
   const first = available[0];
