@@ -5,7 +5,7 @@ import type { Id } from "./_generated/dataModel";
 import { loadGrid } from "./lib";
 import { deriveSignals } from "../lib/dwell/signals";
 import { writeWrapped } from "../lib/ai/narrative";
-import { renderStrip } from "../lib/render/types";
+import { renderStrip } from "../lib/render/strip";
 import type { CardRenderInput, DwellRun as WireDwellRun } from "../lib/types";
 
 /**

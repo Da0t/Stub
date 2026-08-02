@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation } from "./_generated/server";
-import { checkEligibility, rarityScore } from "../lib/mint/eligibility";
+import { checkEligibility } from "../lib/mint/eligibility";
+import { rarityScore } from "../lib/mint/rarity";
 import type { SetRecord } from "../lib/types";
 
 /**
