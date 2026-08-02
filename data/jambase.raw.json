@@ -1,0 +1,133 @@
+{
+  "_README": "Path 3 bootstrap input snapshot. README §T+30: 'Dump the raw payload to disk before parsing so you can iterate without re-hitting the API.' This file holds three inputs to toGrid(): (1) `events` — the flattened JamBase performance slots (RawJamBaseEvent[]); (2) `stages` — a STUB of path 2's data/stages.json (path 2 owns the authoritative polygons; these five ids/buffers are the agreed coordination values); (3) `artistMeta` — per-artist enrichment keyed by jambaseArtistId. PROVENANCE: the 2026 Outside Lands lineup, days, and marquee set start-times are real (Aug 7-9 2026, Golden Gate Park; sources: sfoutsidelands.com, Rock Cellar, riffmagazine, SFist). Each event carries a `_provenance` note: 'source:...' fields are from published data; 'reconstructed:...' fields (some stage assignments and non-marquee windows) were filled to plausible values because the full stage-by-stage schedule was not machine-readable at build time. `estimatedAudience` is null everywhere: JamBase did not expose per-performance audience in this pull — PATH 6, degrade rarity gracefully (isHeadliner + slotIndex are honest signals). spotifyId/musicbrainzId are populated only where verified via MusicBrainz; others are null (never guessed).",
+  "stages": [
+    {
+      "id": "lands-end",
+      "name": "Lands End",
+      "polygon": [[37.7693, -122.4957], [37.7693, -122.4933], [37.7677, -122.4933], [37.7677, -122.4957]],
+      "bufferMeters": 30,
+      "centroid": [37.7685, -122.4945]
+    },
+    {
+      "id": "twin-peaks",
+      "name": "Twin Peaks",
+      "polygon": [[37.7708, -122.4882], [37.7708, -122.4858], [37.7692, -122.4858], [37.7692, -122.4882]],
+      "bufferMeters": 30,
+      "centroid": [37.7700, -122.4870]
+    },
+    {
+      "id": "sutro",
+      "name": "Sutro",
+      "polygon": [[37.7718, -122.4832], [37.7718, -122.4808], [37.7702, -122.4808], [37.7702, -122.4832]],
+      "bufferMeters": 25,
+      "centroid": [37.7710, -122.4820]
+    },
+    {
+      "id": "soma",
+      "name": "SOMA",
+      "polygon": [[37.7728, -122.5012], [37.7728, -122.4988], [37.7712, -122.4988], [37.7712, -122.5012]],
+      "bufferMeters": 20,
+      "centroid": [37.7720, -122.5000]
+    },
+    {
+      "id": "duboce-triangle",
+      "name": "Duboce Triangle",
+      "polygon": [[37.7673, -122.4912], [37.7673, -122.4888], [37.7657, -122.4888], [37.7657, -122.4912]],
+      "bufferMeters": 45,
+      "centroid": [37.7665, -122.4900]
+    }
+  ],
+  "artistMeta": {
+    "jb-charli-xcx": {
+      "jambaseArtistId": "jb-charli-xcx",
+      "spotifyId": "0HNqrcl3vgc1U7U1SNtsvB",
+      "musicbrainzId": "260b6184-8828-48eb-945c-bc4cb6fc34ca",
+      "genreTags": ["pop", "hyperpop", "electropop"],
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "nextTourDate": null
+    },
+    "jb-the-strokes": {
+      "jambaseArtistId": "jb-the-strokes",
+      "spotifyId": "0epOFNiUfyON9EYx7Tpr6V",
+      "musicbrainzId": "f181961b-20f7-459e-89de-920ef03c7ed0",
+      "genreTags": ["indie rock", "garage rock revival"],
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "nextTourDate": { "date": 1787450400000, "venue": "Just Like Heaven Festival", "city": "Pasadena, CA" }
+    },
+    "jb-rufus-du-sol": {
+      "jambaseArtistId": "jb-rufus-du-sol",
+      "spotifyId": "5Pb27ujIyYb33zBqVysBkj",
+      "musicbrainzId": "1cfa6ee5-1189-4ade-97db-8f20a6ba5c76",
+      "genreTags": ["melodic house", "indie dance", "electronic"],
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "nextTourDate": null
+    },
+    "jb-the-xx": {
+      "jambaseArtistId": "jb-the-xx",
+      "spotifyId": null,
+      "musicbrainzId": "c5c2ea1c-4bde-4f4d-bd0b-47b200bf99d6",
+      "genreTags": ["indie pop", "dream pop"],
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "nextTourDate": null
+    },
+    "jb-turnstile": {
+      "jambaseArtistId": "jb-turnstile",
+      "spotifyId": null,
+      "musicbrainzId": null,
+      "genreTags": ["hardcore punk", "alternative metal"],
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "nextTourDate": null
+    }
+  },
+  "events": [
+    { "id": "set-fri-le-wetleg", "artistName": "Wet Leg", "jambaseArtistId": "jb-wet-leg", "stageName": "Lands End", "startDate": "2026-08-07T15:55:00-07:00", "endDate": "2026-08-07T16:45:00-07:00", "status": "scheduled", "estimatedAudience": null, "festival": { "id": "outside-lands-2026", "name": "Outside Lands 2026", "timezone": "America/Los_Angeles" }, "_provenance": "source:time,day; reconstructed:stage" },
+    { "id": "set-fri-le-glorilla", "artistName": "GloRilla", "jambaseArtistId": "jb-glorilla", "stageName": "Lands End", "startDate": "2026-08-07T17:15:00-07:00", "endDate": "2026-08-07T18:15:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,day; reconstructed:stage" },
+    { "id": "set-fri-le-clipse", "artistName": "Clipse", "jambaseArtistId": "jb-clipse", "stageName": "Lands End", "startDate": "2026-08-07T18:45:00-07:00", "endDate": "2026-08-07T19:35:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,day; reconstructed:stage" },
+    { "id": "set-fri-le-charli", "artistName": "Charli xcx", "jambaseArtistId": "jb-charli-xcx", "stageName": "Lands End", "startDate": "2026-08-07T20:40:00-07:00", "endDate": "2026-08-07T22:00:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,stage,day; reconstructed:endTime" },
+
+    { "id": "set-fri-tp-geese", "artistName": "Geese", "jambaseArtistId": "jb-geese", "stageName": "Twin Peaks Stage", "startDate": "2026-08-07T16:30:00-07:00", "endDate": "2026-08-07T17:30:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "reconstructed:time,stage (stageName uses a feed alias to exercise the alias map)" },
+    { "id": "set-fri-tp-labrinth", "artistName": "Labrinth", "jambaseArtistId": "jb-labrinth", "stageName": "Twin Peaks", "startDate": "2026-08-07T18:45:00-07:00", "endDate": "2026-08-07T19:55:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,day; reconstructed:stage" },
+    { "id": "set-fri-tp-griz", "artistName": "GRiZTRONICS", "jambaseArtistId": "jb-griztronics", "stageName": "Twin Peaks", "startDate": "2026-08-07T20:25:00-07:00", "endDate": "2026-08-07T21:55:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,stage,day; reconstructed:endTime" },
+
+    { "id": "set-fri-su-ethelcain", "artistName": "Ethel Cain", "jambaseArtistId": "jb-ethel-cain", "stageName": "Sutro", "startDate": "2026-08-07T17:15:00-07:00", "endDate": "2026-08-07T18:15:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "reconstructed:time,stage" },
+    { "id": "set-fri-su-turnstile", "artistName": "Turnstile", "jambaseArtistId": "jb-turnstile", "stageName": "Sutro", "startDate": "2026-08-07T19:20:00-07:00", "endDate": "2026-08-07T20:20:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,stage,day; reconstructed:endTime" },
+    { "id": "set-fri-su-modestmouse", "artistName": "Modest Mouse", "jambaseArtistId": "jb-modest-mouse", "stageName": "Sutro", "startDate": "2026-08-07T20:50:00-07:00", "endDate": "2026-08-07T22:00:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,stage,day; reconstructed:endTime" },
+
+    { "id": "set-fri-so-barry", "artistName": "Barry Can't Swim", "jambaseArtistId": "jb-barry-cant-swim", "stageName": "SOMA", "startDate": "2026-08-07T17:30:00-07:00", "endDate": "2026-08-07T18:45:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "reconstructed:time,stage" },
+
+    { "id": "set-fri-du-sierra", "artistName": "Sierra Ferrell", "jambaseArtistId": "jb-sierra-ferrell", "stageName": "Duboce Triangle", "startDate": "2026-08-07T16:00:00-07:00", "endDate": "2026-08-07T17:00:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "reconstructed:time,stage" },
+    { "id": "set-fri-du-mariah", "artistName": "Mariah the Scientist", "jambaseArtistId": "jb-mariah", "stageName": "Duboce Triangle", "startDate": "2026-08-07T18:30:00-07:00", "endDate": "2026-08-07T19:45:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "reconstructed:time,stage" },
+
+    { "id": "set-sat-le-lucy", "artistName": "Lucy Dacus", "jambaseArtistId": "jb-lucy-dacus", "stageName": "Lands End", "startDate": "2026-08-08T17:00:00-07:00", "endDate": "2026-08-08T18:00:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "reconstructed:time,stage" },
+    { "id": "set-sat-le-djo", "artistName": "Djo", "jambaseArtistId": "jb-djo", "stageName": "Lands End", "startDate": "2026-08-08T18:50:00-07:00", "endDate": "2026-08-08T19:50:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,day; reconstructed:stage" },
+    { "id": "set-sat-le-strokes", "artistName": "The Strokes", "jambaseArtistId": "jb-the-strokes", "stageName": "Lands End", "startDate": "2026-08-08T20:35:00-07:00", "endDate": "2026-08-08T22:00:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,stage,day; reconstructed:endTime" },
+
+    { "id": "set-sat-tp-tinashe", "artistName": "Tinashe", "jambaseArtistId": "jb-tinashe", "stageName": "Twin Peaks", "startDate": "2026-08-08T16:30:00-07:00", "endDate": "2026-08-08T17:30:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "reconstructed:time,stage" },
+    { "id": "set-sat-tp-dijon", "artistName": "Dijon", "jambaseArtistId": "jb-dijon", "stageName": "Twin Peaks", "startDate": "2026-08-08T18:30:00-07:00", "endDate": "2026-08-08T19:20:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,day; reconstructed:stage" },
+    { "id": "set-sat-tp-thexx", "artistName": "The xx", "jambaseArtistId": "jb-the-xx", "stageName": "Twin Peaks", "startDate": "2026-08-08T20:10:00-07:00", "endDate": "2026-08-08T21:40:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,stage,day; reconstructed:endTime" },
+
+    { "id": "set-sat-su-temper", "artistName": "The Temper Trap", "jambaseArtistId": "jb-temper-trap", "stageName": "Sutro", "startDate": "2026-08-08T18:30:00-07:00", "endDate": "2026-08-08T19:30:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "reconstructed:time,stage" },
+    { "id": "set-sat-su-pinkpantheress", "artistName": "PinkPantheress", "jambaseArtistId": "jb-pinkpantheress", "stageName": "Sutro", "startDate": "2026-08-08T20:45:00-07:00", "endDate": "2026-08-08T22:00:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,stage,day; reconstructed:endTime" },
+
+    { "id": "set-sat-so-lane8", "artistName": "Lane 8", "jambaseArtistId": "jb-lane-8", "stageName": "SOMA", "startDate": "2026-08-08T20:00:00-07:00", "endDate": "2026-08-08T21:30:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:day; reconstructed:time,stage" },
+
+    { "id": "set-sun-le-empire", "artistName": "Empire of the Sun", "jambaseArtistId": "jb-empire-of-the-sun", "stageName": "Lands End", "startDate": "2026-08-09T18:45:00-07:00", "endDate": "2026-08-09T19:45:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,day; reconstructed:stage" },
+    { "id": "set-sun-le-rufus", "artistName": "RÜFÜS DU SOL", "jambaseArtistId": "jb-rufus-du-sol", "stageName": "Lands End", "startDate": "2026-08-09T20:25:00-07:00", "endDate": "2026-08-09T22:00:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,stage,day; reconstructed:endTime" },
+
+    { "id": "set-sun-tp-deathcab", "artistName": "Death Cab for Cutie", "jambaseArtistId": "jb-death-cab", "stageName": "Twin Peaks", "startDate": "2026-08-09T20:10:00-07:00", "endDate": "2026-08-09T21:40:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:day; reconstructed:time,stage" },
+
+    { "id": "set-sun-su-babykeem", "artistName": "Baby Keem", "jambaseArtistId": "jb-baby-keem", "stageName": "Sutro", "startDate": "2026-08-09T20:40:00-07:00", "endDate": "2026-08-09T22:00:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:time,day; reconstructed:stage,endTime" },
+
+    { "id": "set-sun-so-discolines", "artistName": "Disco Lines", "jambaseArtistId": "jb-disco-lines", "stageName": "SOMA", "startDate": "2026-08-09T19:30:00-07:00", "endDate": "2026-08-09T21:00:00-07:00", "status": "scheduled", "estimatedAudience": null, "_provenance": "source:day; reconstructed:time,stage" }
+  ]
+}
