@@ -1,11 +1,12 @@
 import { createCanvas } from '@napi-rs/canvas';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { drawCardLayers, drawPhotoCover } from './core';
 import { fogIntensity } from './frames/fog';
 import { shouldDrawRarity } from './frames/shared';
-import { CARD_HEIGHT, CARD_WIDTH } from './theme';
-import { fitText } from './theme/typography';
+import { CARD_HEIGHT, CARD_WIDTH, metrics } from './theme';
+import { ARTIST_TEXT_STYLES, fitArtistText, fitText } from './theme/typography';
 import { FRAME_VARIANTS, type CardRenderInput, type RenderContext } from './types';
+import { clearCardImageCache, renderCard } from './renderCard';
 
 const photo = 'data:image/png;base64,unused-in-this-test';
 
@@ -22,6 +23,10 @@ const base: CardRenderInput = {
 };
 
 describe('card layer engine', () => {
+  afterEach(() => {
+    clearCardImageCache();
+    vi.unstubAllGlobals();
+  });
   it('renders every variant from the same input without mutation', async () => {
     const image = createCanvas(800, 600);
     const imageContext = image.getContext('2d');
@@ -51,6 +56,53 @@ describe('card layer engine', () => {
     ctx.font = `800 ${fitted.size}px Georgia`;
     expect(fitted.lines).toHaveLength(2);
     expect(fitted.lines.every((line) => ctx.measureText(line).width <= 350)).toBe(true);
+  });
+
+  it('fits the required long artist name inside every frame-specific text box', () => {
+    const ctx = createCanvas(500, 700).getContext('2d') as unknown as RenderContext;
+    for (const variant of FRAME_VARIANTS) {
+      const style = ARTIST_TEXT_STYLES[variant];
+      const fitted = fitArtistText(ctx, variant, base.artistName.toUpperCase(), metrics());
+      ctx.font = `${style.weight} ${fitted.size}px ${style.family}`;
+      expect(fitted.lines.length, variant).toBeLessThanOrEqual(2);
+      expect(fitted.lines.every((line) => ctx.measureText(line).width <= style.maxWidth), variant).toBe(true);
+    }
+  });
+
+  it('renders a blob URL without making a network request', async () => {
+    const gradient = { addColorStop: vi.fn() };
+    const context = new Proxy<Record<string, unknown>>({}, {
+      get(target, property) {
+        if (property in target) return target[property as string];
+        if (property === 'createLinearGradient') return () => gradient;
+        if (property === 'measureText') return (value: string) => ({ width: value.length * 7 });
+        return () => undefined;
+      },
+      set(target, property, value) { target[property as string] = value; return true; },
+    }) as unknown as CanvasRenderingContext2D;
+    class OfflineImage {
+      width = 900;
+      height = 600;
+      decoding = '';
+      crossOrigin: string | null = null;
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      set src(value: string) {
+        expect(value).toBe('blob:http://localhost/offline-photo');
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+    const fetchSpy = vi.fn();
+    vi.stubGlobal('fetch', fetchSpy);
+    vi.stubGlobal('Image', OfflineImage);
+    vi.stubGlobal('document', { fonts: { ready: Promise.resolve() } });
+    const canvas = {
+      width: 0, height: 0, style: { aspectRatio: '' }, getContext: () => context,
+    } as unknown as HTMLCanvasElement;
+    await renderCard({ ...base, photoUrl: 'blob:http://localhost/offline-photo' }, canvas);
+    expect(canvas.width).toBe(1_000);
+    expect(canvas.height).toBe(1_400);
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });
 

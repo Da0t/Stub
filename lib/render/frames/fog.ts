@@ -1,6 +1,6 @@
 import type { FrameLayers } from '../types';
 import { drawGrain, fonts, palette } from '../theme';
-import { drawCenteredLines, fitText } from '../theme/typography';
+import { drawCenteredLines, fitArtistText } from '../theme/typography';
 import { drawBorder, drawInfoPill, drawRarityMark } from './shared';
 
 export function fogIntensity(setWindowLabel: string): number {
@@ -39,12 +39,7 @@ export const fogFrame: FrameLayers = {
   },
   text(ctx, input, m) {
     const u = m.unit;
-    const fitted = fitText(ctx, input.artistName, {
-      maxWidth: m.width - 92 * u,
-      maxSize: 51 * u,
-      minSize: 23 * u,
-      family: fonts.display,
-    });
+    const fitted = fitArtistText(ctx, 'fog_layer', input.artistName, m);
     ctx.save();
     ctx.shadowColor = 'rgba(0,0,0,0.45)';
     ctx.shadowBlur = 8 * u;

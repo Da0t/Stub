@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto';
+import { lookup } from 'node:dns/promises';
+import { isIP } from 'node:net';
 import { createCanvas, GlobalFonts, loadImage, type Image } from '@napi-rs/canvas';
 import { drawCardLayers } from './core';
 import { fonts, palette, SHARE_HEIGHT, SHARE_WIDTH } from './theme';
@@ -28,10 +30,49 @@ function cacheKey(cards: readonly CardRenderInput[]): string {
 const MAX_REMOTE_PHOTO_BYTES = 8 * 1024 * 1024;
 const REMOTE_PHOTO_TIMEOUT_MS = 2_000;
 
+export function isPrivateOrReservedAddress(address: string): boolean {
+  if (isIP(address) === 4) {
+    const [a, b, c] = address.split('.').map(Number);
+    return a === 0 || a === 10 || a === 127 || a >= 224
+      || (a === 100 && b >= 64 && b <= 127)
+      || (a === 169 && b === 254)
+      || (a === 172 && b >= 16 && b <= 31)
+      || (a === 192 && b === 0 && c === 0)
+      || (a === 192 && b === 0 && c === 2)
+      || (a === 192 && b === 168)
+      || (a === 198 && (b === 18 || b === 19))
+      || (a === 198 && b === 51 && c === 100)
+      || (a === 203 && b === 0 && c === 113);
+  }
+  if (isIP(address) === 6) {
+    const normalized = address.toLowerCase();
+    if (normalized === '::' || normalized === '::1') return true;
+    if (/^(?:fc|fd|fe[89ab]|ff)/.test(normalized)) return true;
+    const mapped = normalized.match(/::ffff:(\d+\.\d+\.\d+\.\d+)$/)?.[1];
+    return mapped ? isPrivateOrReservedAddress(mapped) : false;
+  }
+  return true;
+}
+
+async function resolvesOnlyToPublicAddresses(hostname: string): Promise<boolean> {
+  try {
+    const results = await lookup(hostname, { all: true, verbatim: true });
+    return results.length > 0 && results.every(({ address }) => !isPrivateOrReservedAddress(address));
+  } catch {
+    return false;
+  }
+}
+
 async function safeLoadImage(url: string): Promise<Image | null> {
   try {
     if (/^https?:/i.test(url)) {
-      const response = await fetch(url, { signal: AbortSignal.timeout(REMOTE_PHOTO_TIMEOUT_MS) });
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'https:' || parsed.username || parsed.password) return null;
+      if (!(await resolvesOnlyToPublicAddresses(parsed.hostname))) return null;
+      const response = await fetch(parsed, {
+        signal: AbortSignal.timeout(REMOTE_PHOTO_TIMEOUT_MS),
+        redirect: 'error',
+      });
       if (!response.ok) return null;
       if (!response.headers.get('content-type')?.toLowerCase().startsWith('image/')) return null;
       const declaredSize = Number(response.headers.get('content-length'));
@@ -40,7 +81,8 @@ async function safeLoadImage(url: string): Promise<Image | null> {
       if (bytes.byteLength > MAX_REMOTE_PHOTO_BYTES) return null;
       return await loadImage(bytes);
     }
-    return await loadImage(url);
+    if (/^data:image\/(?:png|jpe?g|webp);base64,/i.test(url)) return await loadImage(url);
+    return null;
   } catch {
     return null;
   }
@@ -67,21 +109,30 @@ function paperBackground(ctx: RenderContext): void {
   }
 }
 
-function dayGroups(cards: readonly CardRenderInput[]): Array<{ label: string; cards: CardRenderInput[] }> {
+export function dayGroups(cards: readonly CardRenderInput[]): Array<{ label: string; cards: CardRenderInput[] }> {
   const groups = new Map<string, CardRenderInput[]>();
-  cards.slice(0, 12).forEach((card) => {
-    const group = groups.get(card.dateLabel) ?? [];
-    if (group.length < 4) group.push(card);
-    groups.set(card.dateLabel, group);
-  });
-  return Array.from(groups, ([label, values]) => ({ label, cards: values })).slice(0, 3);
+  let selected = 0;
+  for (const card of cards) {
+    let group = groups.get(card.dateLabel);
+    if (!group) {
+      if (groups.size >= 3) continue;
+      group = [];
+      groups.set(card.dateLabel, group);
+    }
+    if (group.length >= 4) continue;
+    group.push(card);
+    selected += 1;
+    if (selected === 12) break;
+  }
+  return Array.from(groups, ([label, values]) => ({ label, cards: values }));
 }
 
 /** Server-side 1080×1920 PNG renderer. Input-content cached for repeat Wrapped views. */
 export async function renderStrip(cards: CardRenderInput[]): Promise<Buffer> {
   if (!Array.isArray(cards)) throw new TypeError('cards must be an array');
   registerFonts();
-  const key = cacheKey(cards);
+  const groups = dayGroups(cards);
+  const key = cacheKey(groups.flatMap((group) => group.cards));
   const cached = stripCache.get(key);
   if (cached) return cached;
 
@@ -96,7 +147,6 @@ export async function renderStrip(cards: CardRenderInput[]): Promise<Buffer> {
   ctx.font = `700 27px ${fonts.sans}`;
   ctx.fillText('OUTSIDE LANDS 2026  •  GOLDEN GATE PARK', SHARE_WIDTH / 2, 139);
 
-  const groups = dayGroups(cards);
   const cardWidth = 274;
   const cardHeight = Math.round(cardWidth * 7 / 5);
   const gap = 44;

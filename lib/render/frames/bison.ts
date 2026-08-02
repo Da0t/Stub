@@ -1,6 +1,6 @@
 import type { FrameLayers, FrameMetrics, RenderContext } from '../types';
 import { drawGrain, fonts, palette } from '../theme';
-import { drawCenteredLines, fitText } from '../theme/typography';
+import { drawCenteredLines, fitArtistText } from '../theme/typography';
 import { drawBorder, drawInfoPill, drawRarityMark } from './shared';
 
 function drawDiscoBall(ctx: RenderContext, m: FrameMetrics): void {
@@ -73,13 +73,7 @@ export const bisonFrame: FrameLayers = {
   },
   text(ctx, input, m) {
     const u = m.unit;
-    const fitted = fitText(ctx, input.artistName.toUpperCase(), {
-      maxWidth: m.width - 90 * u,
-      maxSize: 47 * u,
-      minSize: 21 * u,
-      family: fonts.sans,
-      weight: 900,
-    });
+    const fitted = fitArtistText(ctx, 'disco_bison', input.artistName.toUpperCase(), m);
     ctx.save();
     ctx.shadowColor = palette.orange;
     ctx.shadowOffsetX = 3 * u;

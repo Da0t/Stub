@@ -1,6 +1,6 @@
 import type { FrameLayers } from '../types';
 import { drawGrain, fonts, palette, roundedRect } from '../theme';
-import { drawCenteredLines, fitText } from '../theme/typography';
+import { drawCenteredLines, fitArtistText } from '../theme/typography';
 import { drawBorder, drawInfoPill, drawRarityMark } from './shared';
 
 export const trailFrame: FrameLayers = {
@@ -34,12 +34,7 @@ export const trailFrame: FrameLayers = {
   },
   text(ctx, input, m) {
     const u = m.unit;
-    const fitted = fitText(ctx, input.artistName.toUpperCase(), {
-      maxWidth: m.width - 112 * u,
-      maxSize: 37 * u,
-      minSize: 17 * u,
-      family: fonts.display,
-    });
+    const fitted = fitArtistText(ctx, 'trail_marker', input.artistName.toUpperCase(), m);
     ctx.fillStyle = palette.cream;
     drawCenteredLines(ctx, fitted, m.width / 2 - 4 * u, 111 * u, 35 * u);
     ctx.font = `700 ${12 * u}px ${fonts.sans}`;

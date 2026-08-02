@@ -4,6 +4,9 @@ import { FRAME_VARIANTS, type CardRenderInput } from '@/lib/render/types';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+const MAX_REQUEST_BYTES = 12 * 1024 * 1024;
+const MAX_TEXT_LENGTH = 160;
+
 function isSafePhotoUrl(value: string): boolean {
   if (/^data:image\/(?:png|jpe?g|webp);base64,/i.test(value)) return value.length <= 12_000_000;
   try {
@@ -34,19 +37,48 @@ function isCard(value: unknown): value is CardRenderInput {
   return typeof card.photoUrl === 'string'
     && isSafePhotoUrl(card.photoUrl)
     && FRAME_VARIANTS.includes(card.frameVariant as CardRenderInput['frameVariant'])
-    && ['artistName', 'stageName', 'dateLabel', 'setWindowLabel', 'dwellLabel', 'themePack']
-      .every((key) => typeof card[key] === 'string')
+    && ['artistName', 'stageName', 'dateLabel', 'setWindowLabel', 'dwellLabel']
+      .every((key) => typeof card[key] === 'string' && (card[key] as string).length <= MAX_TEXT_LENGTH)
+    && typeof card.themePack === 'string'
+    && /^[a-z0-9][a-z0-9-]{0,63}$/.test(card.themePack)
     && typeof card.rarityScore === 'number'
     && Number.isFinite(card.rarityScore)
     && card.rarityScore >= 0
     && card.rarityScore <= 1;
 }
 
+async function readJson(request: Request): Promise<unknown> {
+  const declared = Number(request.headers.get('content-length'));
+  if (Number.isFinite(declared) && declared > MAX_REQUEST_BYTES) {
+    throw new RangeError('Request body is too large.');
+  }
+  if (!request.body) return null;
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  let bytesRead = 0;
+  let json = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    bytesRead += value.byteLength;
+    if (bytesRead > MAX_REQUEST_BYTES) {
+      await reader.cancel();
+      throw new RangeError('Request body is too large.');
+    }
+    json += decoder.decode(value, { stream: true });
+  }
+  json += decoder.decode();
+  return JSON.parse(json);
+}
+
 export async function POST(request: Request): Promise<Response> {
   let body: unknown;
   try {
-    body = await request.json();
-  } catch {
+    body = await readJson(request);
+  } catch (error) {
+    if (error instanceof RangeError) {
+      return Response.json({ error: error.message }, { status: 413 });
+    }
     return Response.json({ error: 'Expected a JSON body.' }, { status: 400 });
   }
   const cards = Array.isArray(body) ? body : (body as { cards?: unknown } | null)?.cards;

@@ -1,6 +1,6 @@
 import type { FrameLayers } from '../types';
 import { drawGrain, fonts, palette, roundedRect } from '../theme';
-import { drawCenteredLines, fitText } from '../theme/typography';
+import { drawCenteredLines, fitArtistText } from '../theme/typography';
 import { drawRarityMark } from './shared';
 
 export const notesFrame: FrameLayers = {
@@ -38,12 +38,7 @@ export const notesFrame: FrameLayers = {
   },
   text(ctx, input, m) {
     const u = m.unit;
-    const fitted = fitText(ctx, input.artistName, {
-      maxWidth: m.width - 70 * u,
-      maxSize: 41 * u,
-      minSize: 19 * u,
-      family: fonts.hand,
-    });
+    const fitted = fitArtistText(ctx, 'field_notes', input.artistName, m);
     ctx.save();
     ctx.fillStyle = palette.ink;
     drawCenteredLines(ctx, fitted, m.width / 2, 554 * u, 40 * u, fonts.hand, 700);

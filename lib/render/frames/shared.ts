@@ -32,11 +32,19 @@ export function drawRarityMark(
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
+  // An unlabeled compass spark: the mark is visible without inventing a tier.
   ctx.fillStyle = options.color ?? palette.deepForest;
-  ctx.font = `900 ${9 * u}px ${fonts.sans}`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('RARE', 0, 0);
+  ctx.beginPath();
+  ctx.moveTo(0, -10 * u);
+  ctx.lineTo(3 * u, -3 * u);
+  ctx.lineTo(10 * u, 0);
+  ctx.lineTo(3 * u, 3 * u);
+  ctx.lineTo(0, 10 * u);
+  ctx.lineTo(-3 * u, 3 * u);
+  ctx.lineTo(-10 * u, 0);
+  ctx.lineTo(-3 * u, -3 * u);
+  ctx.closePath();
+  ctx.fill();
   ctx.restore();
 }
 

@@ -1,6 +1,6 @@
 import type { FrameLayers } from '../types';
 import { drawGrain, fonts, palette, roundedRect } from '../theme';
-import { drawEngravedLines, fitText } from '../theme/typography';
+import { drawEngravedLines, fitArtistText } from '../theme/typography';
 import { drawBorder, drawInfoPill, drawRarityMark } from './shared';
 
 export const rangerFrame: FrameLayers = {
@@ -33,12 +33,7 @@ export const rangerFrame: FrameLayers = {
   },
   text(ctx, input, m) {
     const u = m.unit;
-    const fitted = fitText(ctx, input.artistName.toUpperCase(), {
-      maxWidth: m.width - 145 * u,
-      maxSize: 36 * u,
-      minSize: 18 * u,
-      family: fonts.display,
-    });
+    const fitted = fitArtistText(ctx, 'ranger_badge', input.artistName.toUpperCase(), m);
     drawEngravedLines(ctx, fitted, m.width / 2, 108 * u, 34 * u, palette.cream, '#6b8977', m);
     ctx.fillStyle = palette.cream;
     ctx.font = `700 ${13 * u}px ${fonts.sans}`;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createCanvas } from '@napi-rs/canvas';
 import { POST } from '@/app/api/strip/route';
-import { clearStripCache, renderStrip } from './strip';
+import { clearStripCache, dayGroups, isPrivateOrReservedAddress, renderStrip } from './strip';
 import type { CardRenderInput } from './types';
 
 const photoCanvas = createCanvas(500, 700);
@@ -51,13 +51,35 @@ describe('share strip', () => {
     expect(pngDimensions(await renderStrip([]))).toEqual([1080, 1920]);
   });
 
+  it('selects four cards from each of three days even when the first day is overfull', () => {
+    const cards = [
+      ...seededCards(8).map((card) => ({ ...card, dateLabel: 'Fri Aug 7' })),
+      ...seededCards(6).map((card) => ({ ...card, dateLabel: 'Sat Aug 8' })),
+      ...seededCards(5).map((card) => ({ ...card, dateLabel: 'Sun Aug 9' })),
+    ];
+    expect(dayGroups(cards).map((group) => [group.label, group.cards.length])).toEqual([
+      ['Fri Aug 7', 4], ['Sat Aug 8', 4], ['Sun Aug 9', 4],
+    ]);
+  });
+
+  it('classifies private and reserved network targets', () => {
+    for (const address of ['127.0.0.1', '10.2.3.4', '169.254.169.254', '192.168.1.2', '::1', 'fd00::1', 'fe80::1']) {
+      expect(isPrivateOrReservedAddress(address), address).toBe(true);
+    }
+    expect(isPrivateOrReservedAddress('8.8.8.8')).toBe(false);
+    expect(isPrivateOrReservedAddress('2606:4700:4700::1111')).toBe(false);
+  });
+
   it('serves PNG and rejects malformed route input', async () => {
+    clearStripCache();
+    const routeStarted = performance.now();
     const response = await POST(new Request('http://localhost/api/strip', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ cards: seededCards(1) }),
+      body: JSON.stringify({ cards: seededCards(11) }),
     }));
     expect(response.status).toBe(200);
+    expect(performance.now() - routeStarted).toBeLessThan(3_000);
     expect(response.headers.get('content-type')).toBe('image/png');
     expect(pngDimensions(Buffer.from(await response.arrayBuffer()))).toEqual([1080, 1920]);
 
@@ -81,5 +103,19 @@ describe('share strip', () => {
       body: JSON.stringify({ cards: unsafePhoto }),
     }));
     expect(privateHost.status).toBe(422);
+
+    const oversized = await POST(new Request('http://localhost/api/strip', {
+      method: 'POST',
+      headers: { 'content-length': String(13 * 1024 * 1024) },
+      body: '{}',
+    }));
+    expect(oversized.status).toBe(413);
+
+    const longText = seededCards(1);
+    longText[0].artistName = 'x'.repeat(161);
+    const longTextResponse = await POST(new Request('http://localhost/api/strip', {
+      method: 'POST', body: JSON.stringify({ cards: longText }),
+    }));
+    expect(longTextResponse.status).toBe(422);
   });
 });
