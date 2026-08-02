@@ -12,7 +12,10 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": { "@/*": ["./*"] },
-    "plugins": [{ "name": "next" }]
+    "plugins": [{ "name": "next" }],
+    "allowJs": true,
+    "incremental": true,
+    "isolatedModules": true
   },
   "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]

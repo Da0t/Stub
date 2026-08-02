@@ -66,5 +66,20 @@ describe('share strip', () => {
       body: JSON.stringify({ cards: [{ artistName: 'missing slots' }] }),
     }));
     expect(invalid.status).toBe(422);
+
+    const unsafePhoto = seededCards(1);
+    unsafePhoto[0].photoUrl = 'file:///etc/passwd';
+    const unsafe = await POST(new Request('http://localhost/api/strip', {
+      method: 'POST',
+      body: JSON.stringify({ cards: unsafePhoto }),
+    }));
+    expect(unsafe.status).toBe(422);
+
+    unsafePhoto[0].photoUrl = 'https://[::1]/private.png';
+    const privateHost = await POST(new Request('http://localhost/api/strip', {
+      method: 'POST',
+      body: JSON.stringify({ cards: unsafePhoto }),
+    }));
+    expect(privateHost.status).toBe(422);
   });
 });

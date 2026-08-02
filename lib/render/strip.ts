@@ -25,8 +25,21 @@ function cacheKey(cards: readonly CardRenderInput[]): string {
   return createHash('sha256').update(JSON.stringify(cards)).digest('hex');
 }
 
+const MAX_REMOTE_PHOTO_BYTES = 8 * 1024 * 1024;
+const REMOTE_PHOTO_TIMEOUT_MS = 2_000;
+
 async function safeLoadImage(url: string): Promise<Image | null> {
   try {
+    if (/^https?:/i.test(url)) {
+      const response = await fetch(url, { signal: AbortSignal.timeout(REMOTE_PHOTO_TIMEOUT_MS) });
+      if (!response.ok) return null;
+      if (!response.headers.get('content-type')?.toLowerCase().startsWith('image/')) return null;
+      const declaredSize = Number(response.headers.get('content-length'));
+      if (Number.isFinite(declaredSize) && declaredSize > MAX_REMOTE_PHOTO_BYTES) return null;
+      const bytes = Buffer.from(await response.arrayBuffer());
+      if (bytes.byteLength > MAX_REMOTE_PHOTO_BYTES) return null;
+      return await loadImage(bytes);
+    }
     return await loadImage(url);
   } catch {
     return null;
