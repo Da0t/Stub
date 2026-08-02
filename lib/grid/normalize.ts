@@ -27,10 +27,27 @@ import type {
   RawJamBaseEvent,
 } from "@/lib/grid/jambase";
 import type { Grid, SetRecord, Stage, StageId } from "@/lib/types";
+import { loadStages } from "@/lib/geo/polygons";
 
 const DEFAULT_TIMEZONE = "America/Los_Angeles";
 const DEFAULT_EVENT_NAME = "Outside Lands 2026";
-const HEADLINER_STAGE_NAMES = new Set(["Lands End", "Twin Peaks"]);
+const HEADLINER_STAGE_IDS = new Set<StageId>(["lands-end", "twin-peaks"]);
+
+// Deliberately explicit: schedule publishers use a handful of known labels,
+// and silently guessing a stage would corrupt every downstream presence fact.
+const STAGE_ALIASES: Readonly<Record<string, StageId>> = {
+  "lands end": "lands-end",
+  "lands end stage": "lands-end",
+  "twin peaks": "twin-peaks",
+  "twin peaks stage": "twin-peaks",
+  sutro: "sutro",
+  "sutro stage": "sutro",
+  soma: "soma",
+  "soma tent": "soma",
+  "soma stage": "soma",
+  "duboce triangle": "duboce-triangle",
+  "duboce triangle stage": "duboce-triangle",
+};
 
 /**
  * Explicit stage-name alias map. Five stages does not need fuzzy matching
@@ -41,17 +58,29 @@ const HEADLINER_STAGE_NAMES = new Set(["Lands End", "Twin Peaks"]);
 function normaliseStageKey(name: string): string {
   return name
     .toLowerCase()
-    .replace(/\bstage\b/g, "")
+    .normalize("NFKD")
+    .replace(/[’']/g, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 }
 
 function buildStageIndex(stages: Stage[]): Map<string, Stage> {
+  const byId = new Map(stages.map((stage) => [stage.id, stage]));
   const index = new Map<string, Stage>();
-  for (const stage of stages) {
-    index.set(normaliseStageKey(stage.name), stage);
+  for (const [alias, id] of Object.entries(STAGE_ALIASES)) {
+    const stage = byId.get(id);
+    if (stage) index.set(normaliseStageKey(alias), stage);
   }
   return index;
+}
+
+function parsePerformanceTime(value: string): number | null {
+  // JamBase's performer feed is day-only. A date is not a set window and must
+  // never be interpreted as midnight UTC. Scheduled data must include either
+  // an explicit UTC marker or numeric offset.
+  if (!/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:?\d{2})$/i.test(value)) return null;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 /** Festival-local calendar day (YYYY-MM-DD) for an epoch ms, for slotIndex. */
@@ -75,9 +104,13 @@ function localDay(tsMs: number, timezone: string): string {
  */
 export function toGrid(
   raw: RawJamBaseEvent[],
-  stages: Stage[],
+  _stages: Stage[],
   meta: Record<string, ArtistMeta>
 ): Grid {
+  // data/stages.json is the sole geometry authority. The stages argument is
+  // retained for API compatibility with the bootstrap pipeline, but no caller
+  // (including a stale raw fixture) may inject polygons into the cached grid.
+  const stages = loadStages();
   const stageIndex = buildStageIndex(stages);
   const festival = raw.find((e) => e.festival)?.festival;
   const timezone = festival?.timezone ?? DEFAULT_TIMEZONE;
@@ -95,9 +128,9 @@ export function toGrid(
       dropped.push(`${e.artistName} @ "${e.stageName}" (no polygon)`);
       return [];
     }
-    const startTime = Date.parse(e.startDate);
-    const endTime = Date.parse(e.endDate);
-    if (!Number.isFinite(startTime) || !Number.isFinite(endTime)) {
+    const startTime = parsePerformanceTime(e.startDate);
+    const endTime = parsePerformanceTime(e.endDate);
+    if (startTime === null || endTime === null) {
       dropped.push(`${e.artistName} (unparseable time)`);
       return [];
     }
@@ -120,11 +153,13 @@ export function toGrid(
         estimatedAudience: e.estimatedAudience ?? m?.estimatedAudience ?? null,
         isFestivalDebut: m?.isFestivalDebut ?? false,
         isFinalShow: m?.isFinalShow ?? false,
-        genreTags: m?.genreTags ?? [],
+        genreTags: m?.genreTags?.length ? m.genreTags : (e.genreTags ?? []),
         jambaseArtistId: e.jambaseArtistId,
         spotifyId: m?.spotifyId ?? null,
         nextTourDate: m?.nextTourDate ?? null,
-        _stageName: stage.name, // transient, used for the headliner rule
+        _sourceHeadliner: (e as RawJamBaseEvent & { isHeadliner?: boolean }).isHeadliner,
+        _provenance: e._provenance ?? "unknown",
+        _status: e.status,
       },
     ];
   });
@@ -142,17 +177,17 @@ export function toGrid(
     bucket.forEach((s, i) => {
       s.slotIndex = i;
       const isLastOfDay = i === bucket.length - 1;
-      s.isHeadliner = isLastOfDay && HEADLINER_STAGE_NAMES.has(s._stageName);
+      s.isHeadliner = s._sourceHeadliner ?? (isLastOfDay && HEADLINER_STAGE_IDS.has(s.stageId));
     });
   }
 
   // 3. Strip the transient field, sort all sets by startTime, freeze the Grid.
   const sets: SetRecord[] = partial
-    .map(({ _stageName, ...rest }) => {
-      void _stageName;
+    .map(({ _sourceHeadliner, ...rest }) => {
+      void _sourceHeadliner;
       return rest;
     })
-    .sort((a, b) => a.startTime - b.startTime);
+    .sort((a, b) => a.startTime - b.startTime || a.stageId.localeCompare(b.stageId) || a.id.localeCompare(b.id));
 
   if (dropped.length > 0) {
     // No silent truncation — say what did not make it into the grid.

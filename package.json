@@ -11,7 +11,9 @@
     "convex:dev": "convex dev",
     "convex:codegen": "convex codegen",
     "seed": "tsx scripts/seed-demo.ts",
-    "test": "tsx --test --test-concurrency=1 tests/**/*.test.ts"
+    "test": "npm run test:node && npm run test:unit",
+    "test:node": "tsx --test --test-concurrency=1 tests/**/*.test.ts",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "@napi-rs/canvas": "0.1.100",

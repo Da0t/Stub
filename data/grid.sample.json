@@ -2,7 +2,7 @@
   "festivalId": "outside-lands-2026",
   "eventName": "Outside Lands 2026",
   "timezone": "America/Los_Angeles",
-  "fetchedAt": 1785703582318,
+  "fetchedAt": 1785713394052,
   "stages": [
     {
       "id": "lands-end",
@@ -195,7 +195,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-wet-leg",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,day; reconstructed:stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-du-sierra",
@@ -211,7 +213,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-sierra-ferrell",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "reconstructed:time,stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-tp-geese",
@@ -227,7 +231,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-geese",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "reconstructed:time,stage (stageName uses a feed alias to exercise the alias map)",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-le-glorilla",
@@ -243,7 +249,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-glorilla",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,day; reconstructed:stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-su-ethelcain",
@@ -259,7 +267,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-ethel-cain",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "reconstructed:time,stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-so-barry",
@@ -275,7 +285,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-barry-cant-swim",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "reconstructed:time,stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-du-mariah",
@@ -291,7 +303,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-mariah",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "reconstructed:time,stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-le-clipse",
@@ -307,7 +321,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-clipse",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,day; reconstructed:stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-tp-labrinth",
@@ -323,7 +339,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-labrinth",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,day; reconstructed:stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-su-turnstile",
@@ -342,7 +360,9 @@
       ],
       "jambaseArtistId": "jb-turnstile",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,stage,day; reconstructed:endTime",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-tp-griz",
@@ -358,7 +378,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-griztronics",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,stage,day; reconstructed:endTime",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-le-charli",
@@ -377,8 +399,10 @@
         "electropop"
       ],
       "jambaseArtistId": "jb-charli-xcx",
-      "spotifyId": "0HNqrcl3vgc1U7U1SNtsvB",
-      "nextTourDate": null
+      "spotifyId": "25uiPmTg16RbhZWAqwLBy5",
+      "nextTourDate": null,
+      "_provenance": "source:time,stage,day; reconstructed:endTime",
+      "_status": "scheduled"
     },
     {
       "id": "set-fri-su-modestmouse",
@@ -394,7 +418,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-modest-mouse",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,stage,day; reconstructed:endTime",
+      "_status": "scheduled"
     },
     {
       "id": "set-sat-tp-tinashe",
@@ -410,7 +436,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-tinashe",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "reconstructed:time,stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-sat-le-lucy",
@@ -426,23 +454,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-lucy-dacus",
       "spotifyId": null,
-      "nextTourDate": null
-    },
-    {
-      "id": "set-sat-tp-dijon",
-      "stageId": "twin-peaks",
-      "artistName": "Dijon",
-      "startTime": 1786239000000,
-      "endTime": 1786242000000,
-      "slotIndex": 1,
-      "isHeadliner": false,
-      "estimatedAudience": null,
-      "isFestivalDebut": false,
-      "isFinalShow": false,
-      "genreTags": [],
-      "jambaseArtistId": "jb-dijon",
-      "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "reconstructed:time,stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-sat-su-temper",
@@ -458,7 +472,27 @@
       "genreTags": [],
       "jambaseArtistId": "jb-temper-trap",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "reconstructed:time,stage",
+      "_status": "scheduled"
+    },
+    {
+      "id": "set-sat-tp-dijon",
+      "stageId": "twin-peaks",
+      "artistName": "Dijon",
+      "startTime": 1786239000000,
+      "endTime": 1786242000000,
+      "slotIndex": 1,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-dijon",
+      "spotifyId": null,
+      "nextTourDate": null,
+      "_provenance": "source:time,day; reconstructed:stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-sat-le-djo",
@@ -474,7 +508,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-djo",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,day; reconstructed:stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-sat-so-lane8",
@@ -490,7 +526,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-lane-8",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:day; reconstructed:time,stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-sat-tp-thexx",
@@ -509,7 +547,9 @@
       ],
       "jambaseArtistId": "jb-the-xx",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,stage,day; reconstructed:endTime",
+      "_status": "scheduled"
     },
     {
       "id": "set-sat-le-strokes",
@@ -532,7 +572,9 @@
         "date": 1787450400000,
         "venue": "Just Like Heaven Festival",
         "city": "Pasadena, CA"
-      }
+      },
+      "_provenance": "source:time,stage,day; reconstructed:endTime",
+      "_status": "scheduled"
     },
     {
       "id": "set-sat-su-pinkpantheress",
@@ -548,7 +590,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-pinkpantheress",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,stage,day; reconstructed:endTime",
+      "_status": "scheduled"
     },
     {
       "id": "set-sun-le-empire",
@@ -564,7 +608,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-empire-of-the-sun",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,day; reconstructed:stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-sun-so-discolines",
@@ -580,7 +626,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-disco-lines",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:day; reconstructed:time,stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-sun-tp-deathcab",
@@ -596,7 +644,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-death-cab",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:day; reconstructed:time,stage",
+      "_status": "scheduled"
     },
     {
       "id": "set-sun-le-rufus",
@@ -615,8 +665,10 @@
         "electronic"
       ],
       "jambaseArtistId": "jb-rufus-du-sol",
-      "spotifyId": "5Pb27ujIyYb33zBqVysBkj",
-      "nextTourDate": null
+      "spotifyId": "5xxv7p88qAhl2kvQjrU6kV",
+      "nextTourDate": null,
+      "_provenance": "source:time,stage,day; reconstructed:endTime",
+      "_status": "scheduled"
     },
     {
       "id": "set-sun-su-babykeem",
@@ -632,7 +684,9 @@
       "genreTags": [],
       "jambaseArtistId": "jb-baby-keem",
       "spotifyId": null,
-      "nextTourDate": null
+      "nextTourDate": null,
+      "_provenance": "source:time,day; reconstructed:stage,endTime",
+      "_status": "scheduled"
     }
   ]
 }

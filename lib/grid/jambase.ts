@@ -1,50 +1,24 @@
-// lib/grid/jambase.ts
-//
-// Path 3 — JamBase v3 API client. Runs ONCE, at bootstrap, server-side only.
-//
-// Core invariant: this is the only place in the whole product that talks to
-// JamBase. Everything downstream reads the cached `Grid`. Never import this
-// module from client code and never call it per photo — see acceptance
-// criterion 7 ("zero JamBase calls after bootstrap").
-//
-// Determinism note: we deliberately use the REST API, not the JamBase MCP /
-// agent endpoint. Facts (artist, stage, set window, third-party IDs) must come
-// from a deterministic table lookup, never from a model deciding what is true.
-//
-// Shape warning (README gotcha): "Do not code against remembered API shapes."
-// The parsers below are written defensively against the documented v3 fields,
-// but the authoritative move at real bootstrap is to dump the raw payload to
-// `data/jambase.raw.json` first (scripts/bootstrap-grid.ts does this) and
-// reconcile these types against the JSON actually in front of you.
+// Path 3 — JamBase v3 API client. This module is server-only and is used once
+// during grid bootstrap; the application reads the cached Grid afterwards.
 
-const JAMBASE_BASE_URL = "https://data.jambase.com/v3";
+const JAMBASE_BASE_URL = "https://api.data.jambase.com/v3";
 
-/**
- * One performance slot as it comes off the JamBase feed, already flattened to
- * the fields path 3 cares about. `toGrid` (normalize.ts) turns this into a
- * `SetRecord`. Extra fields (`_provenance`) are ignored by normalization and
- * exist only to keep the committed sample dump honest about which values are
- * source-confirmed vs reconstructed.
- */
 export interface RawJamBaseEvent {
-  id: string; // stable per-performance id; becomes SetRecord.id
+  id: string;
   artistName: string;
   jambaseArtistId: string | null;
-  stageName: string; // as it appears in the feed, e.g. "Twin Peaks Stage"
-  startDate: string; // ISO 8601 WITH offset, e.g. "2026-08-07T20:40:00-07:00"
-  endDate: string; // ISO 8601 WITH offset
+  stageName: string;
+  startDate: string;
+  endDate: string;
   status: "scheduled" | "rescheduled" | "cancelled";
   estimatedAudience: number | null;
+  isHeadliner?: boolean;
+  performanceRank?: number | null;
+  genreTags?: string[];
   festival?: { id: string; name: string; timezone: string };
-  _provenance?: string; // "source" | "reconstructed:stage" | ... (sample only)
+  _provenance?: string;
 }
 
-/**
- * Per-artist enrichment, keyed by jambaseArtistId. This is the sleeper feature:
- * JamBase has already joined artist → third-party IDs, so `spotifyId` is nearly
- * free. Missing values are `null`, never 0 and never "" — path 6's rarity
- * function must be able to tell "unknown" from "small".
- */
 export interface ArtistMeta {
   jambaseArtistId: string;
   spotifyId: string | null;
@@ -57,7 +31,6 @@ export interface ArtistMeta {
 }
 
 function apiKey(): string {
-  // Server-side only. The client never sees this — it reads the cached grid.
   const key = process.env.JAMBASE_API_KEY;
   if (!key) {
     throw new Error(
@@ -70,105 +43,134 @@ function apiKey(): string {
 
 async function getJson(path: string, params: Record<string, string> = {}) {
   const url = new URL(JAMBASE_BASE_URL + path);
-  url.searchParams.set("apikey", apiKey());
-  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-
-  const res = await fetch(url.toString(), {
-    headers: { Accept: "application/json" },
-  });
-  if (!res.ok) {
-    throw new Error(`JamBase ${path} → HTTP ${res.status} ${res.statusText}`);
+  for (const [key, value] of Object.entries(params)) {
+    url.searchParams.set(key, value);
   }
-  return res.json();
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      Authorization: `Bearer ${apiKey()}`,
+      Accept: "application/json",
+    },
+  });
+  if (!response.ok) {
+    throw new Error(
+      `JamBase ${path} → HTTP ${response.status} ${response.statusText}`
+    );
+  }
+
+  // data.jambase.com is a marketing SPA that returns 200/text-html even for
+  // nonsense paths. Guard the media type so a wrong host fails explicitly.
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!contentType.toLowerCase().includes("application/json")) {
+    throw new Error(
+      `JamBase ${path} → non-JSON (${contentType}). Wrong host? Base must be ` +
+        "api.data.jambase.com, not data.jambase.com."
+    );
+  }
+  return response.json();
 }
 
-/** Resolve a festival name + year to its JamBase festival id. */
+/** Resolve a festival series. The edition endpoint requires its bare id. */
 export async function findFestival(
   name: string,
-  year: number
+  _year: number
 ): Promise<{ festivalId: string; name: string }> {
-  const data = await getJson("/festivals", { name, year: String(year) });
-  // v3 wraps results; parse defensively.
-  const first =
-    data?.festivals?.[0] ?? data?.results?.[0] ?? data?.[0] ?? data;
-  const festivalId = String(
-    first?.identifier ?? first?.id ?? first?.festivalId ?? ""
-  );
-  if (!festivalId) {
-    throw new Error(`No festival found for "${name}" ${year}`);
+  const data = await getJson("/festivals", { name });
+  const first = data?.festivalSeries?.[0];
+  if (!first?.identifier) {
+    throw new Error(`No festival found for "${name}"`);
   }
-  return { festivalId, name: String(first?.name ?? name) };
+  return {
+    festivalId: String(first.identifier).replace(/^jambase:/, ""),
+    name: String(first.name ?? name),
+  };
 }
 
-/** Pull the full grid for a festival as flat performance slots. */
+/**
+ * Select one yearly festival edition and flatten its performer array.
+ * JamBase supplies only performance day here: stage and clock times must be
+ * joined from the published stage schedule later in bootstrap.
+ */
 export async function fetchGrid(
-  festivalId: string
+  festivalId: string,
+  year = 2026
 ): Promise<RawJamBaseEvent[]> {
-  const data = await getJson(`/festivals/${festivalId}/events`);
-  const events: unknown[] =
-    data?.events ?? data?.performances ?? data?.results ?? data ?? [];
+  // Be tolerant if a caller passes findFestival's source identifier directly.
+  const bareFestivalId = festivalId.replace(/^jambase:/, "");
+  const data = await getJson(`/festivals/${bareFestivalId}/events`, {
+    perPage: "100",
+  });
+  const edition = (Array.isArray(data?.events) ? data.events : []).find(
+    (candidate: { name?: unknown; startDate?: unknown }) =>
+      String(candidate?.name ?? "").includes(String(year)) ||
+      String(candidate?.startDate ?? "").startsWith(`${year}-`)
+  );
+  if (!edition) {
+    throw new Error(`No ${year} edition for festival ${bareFestivalId}`);
+  }
 
-  return events.map((raw): RawJamBaseEvent => {
-    const e = raw as Record<string, unknown>;
-    const performer = (e.performer ?? e.artist ?? {}) as Record<string, unknown>;
-    const location = (e.location ?? e.stage ?? {}) as Record<string, unknown>;
+  const editionId = String(edition.identifier ?? `${bareFestivalId}:${year}`);
+  const eventStatus = String(edition.eventStatus ?? "scheduled").toLowerCase();
+  const status: RawJamBaseEvent["status"] = eventStatus.includes("cancel")
+    ? "cancelled"
+    : eventStatus.includes("reschedul")
+      ? "rescheduled"
+      : "scheduled";
+  const performers = Array.isArray(edition.performer) ? edition.performer : [];
+
+  return performers.map((performer: Record<string, unknown>, index: number) => {
+    const artistId =
+      performer.identifier == null ? null : String(performer.identifier);
     return {
-      id: String(e.identifier ?? e.id ?? crypto.randomUUID()),
-      artistName: String(performer.name ?? e.name ?? "Unknown Artist"),
-      jambaseArtistId:
-        performer.identifier != null
-          ? String(performer.identifier)
-          : performer.id != null
-            ? String(performer.id)
-            : null,
-      stageName: String(location.name ?? e.stageName ?? ""),
-      startDate: String(e.startDate ?? e.startTime ?? ""),
-      endDate: String(e.endDate ?? e.endTime ?? ""),
-      status:
-        (String(e.eventStatus ?? e.status ?? "scheduled")
-          .toLowerCase()
-          .includes("cancel")
-          ? "cancelled"
-          : String(e.eventStatus ?? e.status ?? "")
-                .toLowerCase()
-                .includes("reschedul")
-            ? "rescheduled"
-            : "scheduled") as RawJamBaseEvent["status"],
-      estimatedAudience:
-        typeof e.estimatedAudience === "number"
-          ? e.estimatedAudience
-          : typeof e.maximumAttendeeCapacity === "number"
-            ? (e.maximumAttendeeCapacity as number)
-            : null,
+      id: `${editionId}:${artistId ?? `performer-${index}`}`,
+      artistName: String(performer.name ?? "Unknown Artist"),
+      jambaseArtistId: artistId,
+      stageName: "",
+      startDate: String(performer["x-performanceDate"] ?? ""),
+      endDate: "",
+      status,
+      estimatedAudience: null,
+      isHeadliner: performer["x-isHeadliner"] === true,
+      performanceRank:
+        typeof performer["x-performanceRank"] === "number"
+          ? performer["x-performanceRank"]
+          : null,
+      genreTags: Array.isArray(performer.genre)
+        ? performer.genre.map(String)
+        : [],
+      festival: {
+        id: bareFestivalId,
+        name: String(edition.name ?? `Festival ${year}`),
+        timezone: "America/Los_Angeles",
+      },
+      _provenance: "source:day-only",
     };
   });
 }
 
-/** Enrich one artist with third-party IDs, genres, and the next SF-area date. */
+/** Enrich an artist using the qualified `jambase:` identifier. */
 export async function enrichArtist(
   jambaseArtistId: string
 ): Promise<ArtistMeta> {
-  const data = await getJson(`/artists/${jambaseArtistId}`);
-  const a = (data?.artist ?? data?.results?.[0] ?? data ?? {}) as Record<
-    string,
-    unknown
-  >;
-
-  // JamBase carries third-party IDs under `sameAs` / `externalIdentifiers`.
-  const spotifyId = extractExternalId(a, "spotify");
-  const musicbrainzId = extractExternalId(a, "musicbrainz");
-
-  const genreTags = Array.isArray(a.genre)
-    ? (a.genre as unknown[]).map(String)
-    : Array.isArray(a.genres)
-      ? (a.genres as unknown[]).map(String)
-      : [];
+  const data = await getJson(`/artists/id/${jambaseArtistId}`);
+  const artist = (data?.artist ?? data ?? {}) as Record<string, unknown>;
+  const links = (Array.isArray(artist.sameAs) ? artist.sameAs : []) as Array<{
+    identifier?: unknown;
+    url?: unknown;
+  }>;
+  const externalId = (provider: "spotify" | "musicbrainz") => {
+    // Provider identity is authoritative. Do not infer it from the URL host.
+    const link = links.find((candidate) => candidate.identifier === provider);
+    const match = String(link?.url ?? "").match(/\/artist\/([A-Za-z0-9-]+)/);
+    return match?.[1] ?? null;
+  };
 
   return {
     jambaseArtistId,
-    spotifyId,
-    musicbrainzId,
-    genreTags,
+    spotifyId: externalId("spotify"),
+    musicbrainzId: externalId("musicbrainz"),
+    genreTags: Array.isArray(artist.genre) ? artist.genre.map(String) : [],
     estimatedAudience: null,
     isFestivalDebut: false,
     isFinalShow: false,
@@ -176,23 +178,37 @@ export async function enrichArtist(
   };
 }
 
-/** Pull a Spotify / MusicBrainz id out of JamBase's `sameAs` link list. */
-function extractExternalId(
-  artist: Record<string, unknown>,
-  provider: "spotify" | "musicbrainz"
-): string | null {
-  const links: unknown[] = Array.isArray(artist.sameAs)
-    ? (artist.sameAs as unknown[])
-    : Array.isArray(artist.externalIdentifiers)
-      ? (artist.externalIdentifiers as unknown[])
-      : [];
-  const host = provider === "spotify" ? "open.spotify.com" : "musicbrainz.org";
-  for (const link of links) {
-    const url = typeof link === "string" ? link : String((link as Record<string, unknown>)?.url ?? "");
-    if (url.includes(host)) {
-      const m = url.match(/\/artist\/([A-Za-z0-9-]+)/);
-      if (m) return m[1];
-    }
-  }
-  return null;
+/** Return the next Bay Area date when available, otherwise the nearest date. */
+export async function nextTourDate(
+  jambaseArtistId: string
+): Promise<{ date: number; venue: string; city: string } | null> {
+  const data = await getJson("/events", {
+    artistId: jambaseArtistId,
+    perPage: "20",
+  });
+  const now = Date.now();
+  const upcoming = (Array.isArray(data?.events) ? data.events : [])
+    .map((event: Record<string, unknown>) => {
+      const location = (event.location ?? {}) as Record<string, unknown>;
+      const address = (location.address ?? {}) as Record<string, unknown>;
+      return {
+        date: Date.parse(String(event.startDate ?? "")),
+        venue: String(location.name ?? ""),
+        city: String(address.addressLocality ?? ""),
+      };
+    })
+    .filter((event: { date: number }) =>
+      Number.isFinite(event.date) && event.date > now
+    )
+    .sort((left: { date: number }, right: { date: number }) =>
+      left.date - right.date
+    );
+
+  return (
+    upcoming.find((event: { city: string }) =>
+      /San Francisco|Oakland|Berkeley|San Jose/i.test(event.city)
+    ) ??
+    upcoming[0] ??
+    null
+  );
 }

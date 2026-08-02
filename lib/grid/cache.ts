@@ -22,9 +22,16 @@
 import { loadGrid, saveGrid } from "@/lib/offline/db";
 import type { Grid } from "@/lib/types";
 import gridSample from "@/data/grid.sample.json";
+import { loadStages } from "@/lib/geo/polygons";
 
 // The committed pull. Cast once, here, at the trust boundary.
-const BUNDLED_GRID = gridSample as unknown as Grid;
+function withCanonicalStages(grid: Grid): Grid {
+  return { ...grid, stages: loadStages() };
+}
+
+// Never trust embedded geometry. Older app bundles and IndexedDB records may
+// contain the coarse polygons that predated data/stages.json.
+const BUNDLED_GRID = withCanonicalStages(gridSample as unknown as Grid);
 
 let mem: Grid | null = null;
 
@@ -35,6 +42,21 @@ async function safeLoadGrid(): Promise<Grid | null> {
   } catch {
     // Server render, private mode, or no IndexedDB — fall back to the bundle.
     return null;
+  }
+}
+
+/** Bound cold-start IndexedDB work so the bundled offline grid renders fast. */
+async function loadGridWithin(deadlineMs = 25): Promise<Grid | null> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      safeLoadGrid(),
+      new Promise<null>((resolve) => {
+        timer = setTimeout(() => resolve(null), deadlineMs);
+      }),
+    ]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
   }
 }
 
@@ -55,9 +77,9 @@ async function safeSaveGrid(grid: Grid): Promise<void> {
 export async function ensureGrid(): Promise<Grid> {
   if (mem) return mem;
 
-  const stored = await safeLoadGrid();
+  const stored = await loadGridWithin();
   const useBundled = !stored || BUNDLED_GRID.fetchedAt > stored.fetchedAt;
-  const chosen = useBundled ? BUNDLED_GRID : stored;
+  const chosen = useBundled ? BUNDLED_GRID : withCanonicalStages(stored);
 
   if (useBundled) {
     void safeSaveGrid(BUNDLED_GRID); // seed IndexedDB for the next cold start

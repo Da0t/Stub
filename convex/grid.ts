@@ -9,6 +9,71 @@ import { mutation } from "./_generated/server";
 const polygon = v.array(v.array(v.float64()));
 const latLng = v.array(v.float64());
 
+const bootstrapStage = v.object({
+  id: v.string(), name: v.string(), polygon, bufferMeters: v.number(),
+  centroid: latLng, jambaseStageRef: v.optional(v.string()),
+});
+const bootstrapSet = v.object({
+  sourceId: v.string(), stageId: v.string(), artistName: v.string(),
+  jambaseArtistId: v.optional(v.string()), spotifyId: v.optional(v.string()),
+  startTime: v.number(), endTime: v.number(), slotIndex: v.number(),
+  isHeadliner: v.boolean(), estimatedAudience: v.optional(v.number()),
+  isFestivalDebut: v.boolean(), isFinalShow: v.boolean(), genreTags: v.array(v.string()),
+  nextTourDate: v.optional(v.object({ date: v.number(), venue: v.string(), city: v.string() })),
+});
+
+/** Atomic, idempotent one-shot ingest using canonical (offline Grid) stage ids. */
+export const bootstrap = mutation({
+  args: {
+    event: v.object({
+      jambaseFestivalId: v.string(), name: v.string(), themePack: v.string(),
+      startDate: v.number(), endDate: v.number(), timezone: v.string(),
+    }),
+    stages: v.array(bootstrapStage),
+    sets: v.array(bootstrapSet),
+    provenance: v.optional(v.string()),
+  },
+  handler: async (ctx, { event, stages, sets, provenance }) => {
+    void provenance; // travels with the audited request; fact-table schema remains frozen.
+    const priorEvent = await ctx.db.query("events")
+      .withIndex("by_jambaseFestivalId", (q) => q.eq("jambaseFestivalId", event.jambaseFestivalId))
+      .unique();
+    const eventId = priorEvent
+      ? (await ctx.db.patch(priorEvent._id, event), priorEvent._id)
+      : await ctx.db.insert("events", event);
+
+    const priorStages = await ctx.db.query("stages")
+      .withIndex("by_eventId", (q) => q.eq("eventId", eventId)).collect();
+    const byName = new Map(priorStages.map((stage) => [stage.name, stage]));
+    const stageIds = new Map<string, (typeof priorStages)[number]["_id"]>();
+    for (const { id: sourceId, ...stage } of stages) {
+      const prior = byName.get(stage.name);
+      const id = prior
+        ? (await ctx.db.patch(prior._id, stage), prior._id)
+        : await ctx.db.insert("stages", { eventId, ...stage });
+      stageIds.set(sourceId, id);
+    }
+
+    const setIds = [];
+    for (const { sourceId, stageId: sourceStageId, ...set } of sets) {
+      void sourceId;
+      const stageId = stageIds.get(sourceStageId);
+      if (!stageId) throw new Error(`Set references unknown canonical stage id: ${sourceStageId}`);
+      const prior = await ctx.db.query("sets")
+        .withIndex("by_eventId_stageId_startTime", (q) =>
+          q.eq("eventId", eventId).eq("stageId", stageId).eq("startTime", set.startTime))
+        .unique();
+      if (prior) {
+        await ctx.db.patch(prior._id, { stageId, ...set });
+        setIds.push(prior._id);
+      } else {
+        setIds.push(await ctx.db.insert("sets", { eventId, stageId, ...set }));
+      }
+    }
+    return { eventId, stageCount: stageIds.size, setCount: setIds.length };
+  },
+});
+
 /** Idempotent on jambaseFestivalId — bootstrap can be re-run safely. */
 export const upsertEvent = mutation({
   args: {
