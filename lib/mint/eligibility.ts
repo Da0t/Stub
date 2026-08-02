@@ -1,4 +1,4 @@
-import { CARD_MINT_DWELL_SECONDS } from '@/lib/dwell/thresholds';
+import { MINT_ELIGIBLE_SECONDS } from '@/lib/dwell/thresholds';
 import type { CardState, SetId, StageId } from './contracts';
 
 export interface EligibilityArgs {
@@ -13,7 +13,7 @@ export interface EligibilityArgs {
 export function checkEligibility(args: EligibilityArgs): CardState {
   const hasLocationAndWindow = args.stageId !== null && args.setId !== null;
   const hasEnoughObservedDwell =
-    Number.isFinite(args.dwellSeconds) && args.dwellSeconds >= CARD_MINT_DWELL_SECONDS;
+    Number.isFinite(args.dwellSeconds) && args.dwellSeconds >= MINT_ELIGIBLE_SECONDS;
 
   return hasLocationAndWindow &&
     hasEnoughObservedDwell &&
