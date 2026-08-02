@@ -3,6 +3,7 @@ import test from "node:test";
 import { parseJson, requestStructured, stripJsonFences } from "../lib/ai/client";
 import { fallbackWrapped, lineIsDescriptive, lineUsesOnlySuppliedNumbers, writeWrapped } from "../lib/ai/narrative";
 import { classifyBurst } from "../lib/ai/vision";
+import { TASK_COPY_TIMEOUT_MS } from "../lib/ai/taskCopy";
 import type { WrappedStats } from "../lib/ai/domain";
 
 const stats: WrappedStats = {
@@ -61,11 +62,44 @@ test("number post-check rejects an injected number", () => {
 test("voice guard rejects personality verdicts", () => {
   assert.equal(lineIsDescriptive("Your weekend was mostly after dark."), true);
   assert.equal(lineIsDescriptive("You're a legendary night owl."), false);
+  assert.equal(lineIsDescriptive("Your taste is impeccable."), false);
+  assert.equal(lineIsDescriptive("Your festival vibe is authentic."), false);
 });
 
 test("narrative is complete with no OpenAI key", async () => {
   delete process.env.OPENAI_API_KEY;
-  assert.deepEqual(await writeWrapped(stats), fallbackWrapped(stats));
+  const fallback = fallbackWrapped(stats);
+  assert.deepEqual(await writeWrapped(stats), fallback);
+  assert.equal(fallback.every((line) => lineUsesOnlySuppliedNumbers(line, stats)), true);
+});
+
+test("six-photo vision accepts fenced structured output and never locates", async () => {
+  const previousKey = process.env.OPENAI_API_KEY;
+  process.env.OPENAI_API_KEY = "test-key";
+  const originalFetch = globalThis.fetch;
+  const photos = Array.from({ length: 6 }, (_, index) => ({ id: `photo-${index}`, dataUrl: "data:image/png;base64,AA==" }));
+  globalThis.fetch = async (_input, init) => {
+    const body = JSON.parse(String(init?.body)) as { input: Array<{ content: Array<Record<string, unknown>> }> };
+    assert.equal(body.input[1].content.filter((part) => part.type === "input_image").length, 6);
+    const output = {
+      bestFrameId: "photo-4",
+      photos: photos.map(({ id }, index) => ({ id, subject: index % 2 ? "people" : "stage", quality: 0.8, blurred: false })),
+    };
+    return new Response(JSON.stringify({ output_text: `\`\`\`json\n${JSON.stringify(output)}\n\`\`\`` }), { status: 200 });
+  };
+  try {
+    const result = await classifyBurst(photos);
+    assert.equal(result.bestFrameId, "photo-4");
+    assert.equal(result.photos.length, 6);
+    assert.equal(result.photos.some((photo) => "location" in photo || "time" in photo), false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousKey === undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY = previousKey;
+  }
+});
+
+test("task copy retry budget remains below the fifteen-second acceptance limit", () => {
+  assert.ok(TASK_COPY_TIMEOUT_MS * 2 < 15_000);
 });
 
 test("vision falls back to first capture and leaves subjects absent", async () => {

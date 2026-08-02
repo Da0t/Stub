@@ -22,7 +22,7 @@ export function lineUsesOnlySuppliedNumbers(line: string, stats: unknown): boole
   return !writtenNumber.test(line) && used.every((token) => allowed.has(token));
 }
 
-const VERDICT_LANGUAGE = /\b(you(?:'re| are)|explorer|night owl|superfan|legend(?:ary)?|loyal|adventurous|tasteful|best|true fan|iconic)\b/i;
+const VERDICT_LANGUAGE = /\b(you(?:'re| are| seem| sound| must be)|explorer|night owl|superfan|legend(?:ary)?|loyal|adventurous|tasteful|best|true fan|iconic|amazing|incredible|impeccable|excellent|elite|dedicated|devoted|brilliant|authentic|hardcore|obsessed|personality|vibe)\b/i;
 
 export function lineIsDescriptive(line: string): boolean {
   return !VERDICT_LANGUAGE.test(line);

@@ -3,6 +3,7 @@ import type { SetForCopy } from "./domain";
 import { TASK_COPY_SYSTEM_PROMPT } from "./prompts/taskCopy";
 
 export interface TaskCopy { description: string; rewardFraming: string }
+export const TASK_COPY_TIMEOUT_MS = 6_000;
 
 const schema = {
   type: "object",
@@ -28,6 +29,7 @@ export async function writeTaskCopy(
       schema,
       system: TASK_COPY_SYSTEM_PROMPT,
       user: JSON.stringify({ intent: intent.trim(), set, reward, fixedVerificationAction: verification }),
+      timeoutMs: TASK_COPY_TIMEOUT_MS,
     });
     if (!result || typeof result.description !== "string" || typeof result.rewardFraming !== "string") return fallback;
     const description = result.description.trim();
