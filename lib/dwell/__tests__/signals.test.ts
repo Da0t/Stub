@@ -1,5 +1,4 @@
-import assert from "node:assert/strict";
-import test from "node:test";
+import { expect, test } from "vitest";
 import type { Grid } from "../../types";
 import type { DwellRun } from "../runs";
 import { deriveSignals } from "../signals";
@@ -18,10 +17,10 @@ const run: DwellRun = { stageId: "one", setId: "a", startTs: start, endTs: start
 
 test("derives opportunity cost and deterministic totals", () => {
   const signals = deriveSignals([run], grid, []);
-  assert.equal(signals.concurrentSetsSkipped, 1);
-  assert.deepEqual(signals.perSetSkipped, { a: 1 });
-  assert.equal(signals.fullSetCount, 1);
-  assert.equal(signals.nightRatio, 1);
-  assert.equal(signals.discoveryRate, 1);
-  assert.deepEqual(deriveSignals([run], grid, []), signals);
+  expect(signals.concurrentSetsSkipped).toBe(1);
+  expect(signals.perSetSkipped).toEqual({ a: 1 });
+  expect(signals.fullSetCount).toBe(1);
+  expect(signals.nightRatio).toBe(1);
+  expect(signals.discoveryRate).toBe(1);
+  expect(deriveSignals([run], grid, [])).toEqual(signals);
 });

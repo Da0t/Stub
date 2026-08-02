@@ -37,7 +37,7 @@ export function buildDwellRuns(samples: DwellSample[], grid: Grid, opts: { maxGa
     } else current.push(sample);
   }
 
-  return groups.flatMap((group) => {
+  return groups.flatMap<DwellRun>((group) => {
     if (group.length < minSamples) return [];
     const stageId = group[0].stageId as StageId;
     const startTs = group[0].ts;

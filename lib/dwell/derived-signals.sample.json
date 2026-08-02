@@ -1,0 +1,21 @@
+{
+  "totalDwellSeconds": 4500,
+  "setsAttended": 2,
+  "concurrentSetsSkipped": 1,
+  "perSetSkipped": { "first": 1, "second": 0 },
+  "completionRateAvg": 0.625,
+  "fullSetCount": 0,
+  "stageDiversity": 1,
+  "nightRatio": 0.4266666667,
+  "discoveryRate": 1,
+  "longestRun": {
+    "stageId": "main",
+    "setId": "first",
+    "startTs": 1786151100000,
+    "endTs": 1786153680000,
+    "dwellSeconds": 2580,
+    "completionRate": 0.7166666667,
+    "sampleCount": 35
+  },
+  "topArtistBySetTime": { "setId": "first", "artistName": "First Artist", "dwellSeconds": 2580 }
+}
