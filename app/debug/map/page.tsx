@@ -42,9 +42,14 @@ const toPath = (poly: PolyPoint[]) =>
 // Festival-day time range (from the sample sets) for the scrubber.
 const tMin = Math.min(...grid.sets.map((s) => s.startTime)) - 20 * 60_000;
 const tMax = Math.max(...grid.sets.map((s) => s.endTime)) + 20 * 60_000;
-const hozierMid = (() => {
-  const h = grid.sets.find((s) => s.artistName === 'Hozier');
-  return h ? (h.startTime + h.endTime) / 2 : (tMin + tMax) / 2;
+// Open the scrubber mid-set rather than mid-range, so the page lands on a live
+// resolution instead of an empty gap. Derived from the grid, not an artist name.
+const defaultMid = (() => {
+  const landsEnd = grid.sets
+    .filter((s) => s.stageId === 'lands-end')
+    .sort((a, b) => a.startTime - b.startTime);
+  const s = landsEnd[landsEnd.length - 1] ?? grid.sets[0];
+  return s ? (s.startTime + s.endTime) / 2 : (tMin + tMax) / 2;
 })();
 
 function fmtTime(ts: number): string {
@@ -59,7 +64,7 @@ function fmtTime(ts: number): string {
 export default function DebugMapPage() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [pt, setPt] = useState<LatLng>(STAGE_CENTROIDS['lands-end']);
-  const [ts, setTs] = useState<number>(hozierMid);
+  const [ts, setTs] = useState<number>(defaultMid);
 
   const { stageId, setId } = useMemo(() => resolve(pt, ts, grid), [pt, ts]);
   const stage = stageId ? stages.find((s) => s.id === stageId) : null;

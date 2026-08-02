@@ -64,8 +64,10 @@ test('buildSampleGrid assembles a full Grid from live polygons + sample sets', (
   assert.ok(grid.sets.length >= 3);
   // stages carry centroids (assembled from loadStages, not eyeballed)
   assert.ok(grid.stages.every((s) => Array.isArray(s.centroid) && s.centroid.length === 2));
-  // there is a Hozier set on Lands End
-  const hozier = grid.sets.find((s) => s.artistName === 'Hozier');
-  assert.ok(hozier);
-  assert.equal(hozier!.stageId, 'lands-end');
+  // every set lands on a real stage, and Lands End is programmed. Asserted
+  // structurally rather than against an artist name — the grid is a real
+  // JamBase pull and the lineup is not ours to pin.
+  const stageIds = new Set(grid.stages.map((s) => s.id));
+  assert.ok(grid.sets.every((s) => stageIds.has(s.stageId)));
+  assert.ok(grid.sets.some((s) => s.stageId === 'lands-end'));
 });
