@@ -30,15 +30,24 @@ const schema = {
   },
 };
 
-function valid(result: VisionResult, ids: string[]): boolean {
-  if (!ids.includes(result.bestFrameId) || result.photos.length !== ids.length) return false;
-  const returned = new Set(result.photos.map((photo) => photo.id));
-  return ids.every((id) => returned.has(id)) && result.photos.every((p) => p.quality >= 0 && p.quality <= 1);
+function valid(result: unknown, ids: string[]): result is VisionResult {
+  if (!result || typeof result !== "object") return false;
+  const candidate = result as VisionResult;
+  if (typeof candidate.bestFrameId !== "string" || !Array.isArray(candidate.photos)) return false;
+  if (!ids.includes(candidate.bestFrameId) || candidate.photos.length !== ids.length) return false;
+  const returned = new Set(candidate.photos.map((photo) => photo?.id));
+  return ids.every((id) => returned.has(id)) && candidate.photos.every((photo) =>
+    photo && typeof photo.id === "string"
+      && ["stage", "people", "food", "scenery"].includes(photo.subject)
+      && typeof photo.quality === "number" && Number.isFinite(photo.quality)
+      && photo.quality >= 0 && photo.quality <= 1
+      && typeof photo.blurred === "boolean",
+  );
 }
 
 /** AI failure never changes mint eligibility: first frame wins and subjects stay absent downstream. */
 export async function classifyBurst(photos: { id: string; dataUrl: string }[]): Promise<VisionResult> {
-  const capped = photos.slice(0, 8);
+  const capped = photos.filter((photo, index) => photos.findIndex(({ id }) => id === photo.id) === index).slice(0, 8);
   if (capped.length === 0) return { bestFrameId: "", photos: [] };
   try {
     const result = await requestStructured<VisionResult>({

@@ -40,8 +40,10 @@ export interface TaskCompletion {
 
 export function verifyTaskFromCards(task: ArtistTask, cards: readonly CardProof[]): TaskCompletion | null {
   const params = task.params;
+  if (task.type !== params.type) return null;
   switch (params.type) {
     case "ATTEND_SET": {
+      if (!params.setId) return null;
       const proof = cards.find((card) => card.setId === params.setId);
       return proof ? { proofCardId: proof.id, proofCardIds: [proof.id] } : null;
     }
@@ -50,21 +52,26 @@ export function verifyTaskFromCards(task: ArtistTask, cards: readonly CardProof[
       return proof ? { proofCardId: proof.id, proofCardIds: [proof.id] } : null;
     }
     case "MINT_N_ONE_DAY": {
+      if (!Number.isInteger(params.count) || params.count < 1 || !Number.isFinite(params.dayStart)
+        || !Number.isFinite(params.dayEnd) || params.dayStart >= params.dayEnd) return null;
       const proofs = cards.filter(
-        (card) => card.mintedAt >= params.dayStart && card.mintedAt < params.dayEnd,
+        (card) => Number.isFinite(card.mintedAt) && card.mintedAt >= params.dayStart && card.mintedAt < params.dayEnd,
       );
       return proofs.length >= params.count
         ? { proofCardId: proofs[0].id, proofCardIds: proofs.slice(0, params.count).map((card) => card.id) }
         : null;
     }
     case "VISIT_NEW_STAGE": {
+      if (!params.priorStageIds.every((stageId) => typeof stageId === "string" && stageId.length > 0)) return null;
       const prior = new Set(params.priorStageIds);
       const proof = cards.find((card) => !prior.has(card.stageId));
       return proof ? { proofCardId: proof.id, proofCardIds: [proof.id] } : null;
     }
     case "FULL_SET_COMMITMENT": {
+      if (params.setId === "") return null;
       const proof = cards.find(
-        (card) => card.completionRate >= 0.8 && (!params.setId || card.setId === params.setId),
+        (card) => Number.isFinite(card.completionRate) && card.completionRate >= 0.8
+          && (!params.setId || card.setId === params.setId),
       );
       return proof ? { proofCardId: proof.id, proofCardIds: [proof.id] } : null;
     }

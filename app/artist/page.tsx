@@ -41,14 +41,14 @@ export default function ArtistPage() {
       const response = await fetch("/api/ai/task-copy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ intent, set: selectedSet, reward: rewards.find((r) => r.value === rewardType)?.label, verification: task.verification }),
+        body: JSON.stringify({ intent, set: selectedSet, rewardType, taskType: task.value }),
       });
       if (!response.ok) throw new Error("Could not write task copy");
       setCopy(await response.json());
       setStatus("ready");
     } catch {
       setCopy({
-        description: `Mint a card from ${selectedSet.artistName}'s set to complete this task.`,
+        description: `Complete this task: ${task.verification}.`,
         rewardFraming: `Complete the task to receive the selected ${rewards.find((r) => r.value === rewardType)?.label.toLowerCase()}.`,
       });
       setStatus("ready");

@@ -18,7 +18,7 @@ export async function writeTaskCopy(
   verification = `mint a card from ${set.artistName}'s set`,
 ): Promise<TaskCopy> {
   const fallback = {
-    description: `Mint a card from ${set.artistName}'s set to complete this task.`,
+    description: `Complete this task: ${verification}.`,
     rewardFraming: `Complete the task to receive ${reward}.`,
   };
   if (!intent.trim()) return fallback;
@@ -29,8 +29,13 @@ export async function writeTaskCopy(
       system: TASK_COPY_SYSTEM_PROMPT,
       user: JSON.stringify({ intent: intent.trim(), set, reward, fixedVerificationAction: verification }),
     });
-    if (!result.description.trim() || !result.rewardFraming.trim()) return fallback;
-    return result;
+    if (!result || typeof result.description !== "string" || typeof result.rewardFraming !== "string") return fallback;
+    const description = result.description.trim();
+    const rewardFraming = result.rewardFraming.trim();
+    if (!description || !rewardFraming
+      || !description.toLocaleLowerCase().includes(verification.toLocaleLowerCase())
+      || !rewardFraming.toLocaleLowerCase().includes(reward.toLocaleLowerCase())) return fallback;
+    return { description, rewardFraming };
   } catch {
     return fallback;
   }

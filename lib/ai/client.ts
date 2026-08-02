@@ -49,7 +49,7 @@ export async function requestStructured<T>(request: StructuredRequest): Promise<
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new AIUnavailableError("OPENAI_API_KEY is not configured");
 
-  const model = process.env.OPENAI_MODEL ?? "gpt-5.6-luna";
+  const model = process.env.OPENAI_MODEL ?? "gpt-5.6-sol";
   const endpoint = process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1/responses";
   const userContent: Array<Record<string, unknown>> = [{ type: "input_text", text: request.user }];
   for (const image of request.images ?? []) {
@@ -58,6 +58,7 @@ export async function requestStructured<T>(request: StructuredRequest): Promise<
   const body = {
     model,
     store: false,
+    max_output_tokens: 1_200,
     reasoning: { effort: "none" },
     input: [
       { role: "system", content: [{ type: "input_text", text: request.system }] },

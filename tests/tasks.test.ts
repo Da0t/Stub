@@ -27,4 +27,9 @@ test("tasks fail closed when no minted card proves them", () => {
   assert.equal(verifyTaskFromCards(task({ type: "ATTEND_SET", setId: "missing" }), cards), null);
   assert.equal(verifyTaskFromCards(task({ type: "MINT_N_ONE_DAY", count: 4, dayStart: 0, dayEnd: 400 }), cards), null);
   assert.equal(verifyTaskFromCards(task({ type: "FULL_SET_COMMITMENT", setId: "set-b" }), cards), null);
+  assert.equal(verifyTaskFromCards(task({ type: "MINT_N_ONE_DAY", count: 0, dayStart: 0, dayEnd: 400 }), cards), null);
+  assert.equal(verifyTaskFromCards(task({ type: "MINT_N_ONE_DAY", count: 1, dayStart: 400, dayEnd: 0 }), cards), null);
+  const mismatched = task({ type: "ATTEND_SET", setId: "set-a" });
+  mismatched.type = "CATCH_OPENER";
+  assert.equal(verifyTaskFromCards(mismatched, cards), null);
 });

@@ -1,26 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { DeckCard } from "./SwipeDeck";
 
+/** The demo receives a pre-generated strip, so revealing it never waits on an API. */
 export function StripReveal({ initialStripUrl }: { initialStripUrl: string }) {
-  const [stripUrl, setStripUrl] = useState(initialStripUrl);
-  const [busy, setBusy] = useState(false);
-
-  async function regenerate() {
-    setBusy(true);
-    try {
-      const response = await fetch("/api/strip", { method: "POST" });
-      if (!response.ok) throw new Error("Strip render unavailable");
-      const blob = await response.blob();
-      setStripUrl(URL.createObjectURL(blob));
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function share() {
-    const response = await fetch(stripUrl);
+    const response = await fetch(initialStripUrl);
     const blob = await response.blob();
     const file = new File([blob], "outside-lands-wrapped.png", { type: blob.type || "image/png" });
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
@@ -28,7 +13,7 @@ export function StripReveal({ initialStripUrl }: { initialStripUrl: string }) {
       return;
     }
     const anchor = document.createElement("a");
-    anchor.href = stripUrl;
+    anchor.href = initialStripUrl;
     anchor.download = file.name;
     anchor.click();
   }
@@ -37,12 +22,9 @@ export function StripReveal({ initialStripUrl }: { initialStripUrl: string }) {
     <DeckCard label="Your shareable weekend strip">
       <div className="stripPanel">
         <p className="kicker">THREE DAYS · ONE STRIP</p>
-        <img src={stripUrl} alt="Twelve-card festival weekend strip" />
+        <img src={initialStripUrl} alt="Twelve-card festival weekend strip" />
         <div className="stripActions">
           <button type="button" onClick={share}>Share or download</button>
-          <button type="button" className="quietButton" onClick={regenerate} disabled={busy}>
-            {busy ? "Rendering…" : "Render again"}
-          </button>
         </div>
       </div>
     </DeckCard>

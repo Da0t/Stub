@@ -16,7 +16,10 @@ export function numericTokens(value: unknown): Set<string> {
 export function lineUsesOnlySuppliedNumbers(line: string, stats: unknown): boolean {
   const allowed = numericTokens(stats);
   const used = line.match(/-?\d+(?:\.\d+)?/g) ?? [];
-  return used.every((token) => allowed.has(token));
+  // Input stats are JSON numerals. Spelling a number out evades token provenance,
+  // so fail closed instead of trying to infer which field the word came from.
+  const writtenNumber = /\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million)\b/i;
+  return !writtenNumber.test(line) && used.every((token) => allowed.has(token));
 }
 
 const VERDICT_LANGUAGE = /\b(you(?:'re| are)|explorer|night owl|superfan|legend(?:ary)?|loyal|adventurous|tasteful|best|true fan|iconic)\b/i;

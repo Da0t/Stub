@@ -2,7 +2,8 @@
   "name": "wrapped-for-the-weekend-path-8",
   "private": true,
   "scripts": {
-    "test": "tsx --test tests/**/*.test.ts",
+    "build": "next build",
+    "test": "tsx --test --test-concurrency=1 tests/**/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
