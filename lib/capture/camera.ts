@@ -70,10 +70,13 @@ function mapGetUserMediaError(err: unknown): CameraError {
 export async function startCamera(video: HTMLVideoElement): Promise<void> {
   if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
     // Most often this is a non-secure context (LAN IP over plain HTTP).
-    const secure =
+    // The flag was inverted here: `isSecureContext === false` means the page is
+    // INSECURE, so reporting "unsupported" sent people chasing browser support
+    // when the real cause was http:// on a LAN IP.
+    const insecure =
       typeof window !== "undefined" && window.isSecureContext === false;
     throw new CameraError(
-      secure ? "unsupported" : "insecure",
+      insecure ? "insecure" : "unsupported",
       "getUserMedia is unavailable (needs a secure context)."
     );
   }
@@ -85,6 +88,10 @@ export async function startCamera(video: HTMLVideoElement): Promise<void> {
     return;
   }
 
+  // Prefer the rear camera (what you want in a crowd), but fall back to any
+  // camera. A laptop has no "environment" device at all, and Safari answers
+  // that constraint with OverconstrainedError rather than quietly substituting
+  // the front camera — which made the capture screen look broken on a Mac.
   let stream: MediaStream;
   try {
     stream = await navigator.mediaDevices.getUserMedia({
@@ -92,7 +99,15 @@ export async function startCamera(video: HTMLVideoElement): Promise<void> {
       audio: false,
     });
   } catch (err) {
-    throw mapGetUserMediaError(err);
+    const name = (err as { name?: string })?.name;
+    if (name !== "OverconstrainedError" && name !== "NotFoundError") {
+      throw mapGetUserMediaError(err);
+    }
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    } catch (fallbackErr) {
+      throw mapGetUserMediaError(fallbackErr);
+    }
   }
 
   activeStream = stream;
