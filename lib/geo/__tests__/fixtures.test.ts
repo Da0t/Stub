@@ -1,5 +1,5 @@
-// Run with: npx tsx --test lib/geo/__tests__/*.test.ts
-import { test } from 'node:test';
+// Run with: npm test (vitest)
+import { test } from 'vitest';
 import assert from 'node:assert/strict';
 import { loadStages } from '../polygons';
 import { resolveStage } from '../resolve';
