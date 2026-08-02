@@ -1,0 +1,598 @@
+{
+  "festivalId": "outside-lands-2026",
+  "eventName": "Outside Lands 2026",
+  "timezone": "America/Los_Angeles",
+  "fetchedAt": 1785703582318,
+  "stages": [
+    {
+      "id": "lands-end",
+      "name": "Lands End",
+      "polygon": [
+        [
+          37.7693,
+          -122.4957
+        ],
+        [
+          37.7693,
+          -122.4933
+        ],
+        [
+          37.7677,
+          -122.4933
+        ],
+        [
+          37.7677,
+          -122.4957
+        ]
+      ],
+      "bufferMeters": 30,
+      "centroid": [
+        37.7685,
+        -122.4945
+      ]
+    },
+    {
+      "id": "twin-peaks",
+      "name": "Twin Peaks",
+      "polygon": [
+        [
+          37.7708,
+          -122.4882
+        ],
+        [
+          37.7708,
+          -122.4858
+        ],
+        [
+          37.7692,
+          -122.4858
+        ],
+        [
+          37.7692,
+          -122.4882
+        ]
+      ],
+      "bufferMeters": 30,
+      "centroid": [
+        37.77,
+        -122.487
+      ]
+    },
+    {
+      "id": "sutro",
+      "name": "Sutro",
+      "polygon": [
+        [
+          37.7718,
+          -122.4832
+        ],
+        [
+          37.7718,
+          -122.4808
+        ],
+        [
+          37.7702,
+          -122.4808
+        ],
+        [
+          37.7702,
+          -122.4832
+        ]
+      ],
+      "bufferMeters": 25,
+      "centroid": [
+        37.771,
+        -122.482
+      ]
+    },
+    {
+      "id": "soma",
+      "name": "SOMA",
+      "polygon": [
+        [
+          37.7728,
+          -122.5012
+        ],
+        [
+          37.7728,
+          -122.4988
+        ],
+        [
+          37.7712,
+          -122.4988
+        ],
+        [
+          37.7712,
+          -122.5012
+        ]
+      ],
+      "bufferMeters": 20,
+      "centroid": [
+        37.772,
+        -122.5
+      ]
+    },
+    {
+      "id": "duboce-triangle",
+      "name": "Duboce Triangle",
+      "polygon": [
+        [
+          37.7673,
+          -122.4912
+        ],
+        [
+          37.7673,
+          -122.4888
+        ],
+        [
+          37.7657,
+          -122.4888
+        ],
+        [
+          37.7657,
+          -122.4912
+        ]
+      ],
+      "bufferMeters": 45,
+      "centroid": [
+        37.7665,
+        -122.49
+      ]
+    }
+  ],
+  "sets": [
+    {
+      "id": "set-fri-le-wetleg",
+      "stageId": "lands-end",
+      "artistName": "Wet Leg",
+      "startTime": 1786143300000,
+      "endTime": 1786146300000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-wet-leg",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-du-sierra",
+      "stageId": "duboce-triangle",
+      "artistName": "Sierra Ferrell",
+      "startTime": 1786143600000,
+      "endTime": 1786147200000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-sierra-ferrell",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-tp-geese",
+      "stageId": "twin-peaks",
+      "artistName": "Geese",
+      "startTime": 1786145400000,
+      "endTime": 1786149000000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-geese",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-le-glorilla",
+      "stageId": "lands-end",
+      "artistName": "GloRilla",
+      "startTime": 1786148100000,
+      "endTime": 1786151700000,
+      "slotIndex": 1,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-glorilla",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-su-ethelcain",
+      "stageId": "sutro",
+      "artistName": "Ethel Cain",
+      "startTime": 1786148100000,
+      "endTime": 1786151700000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-ethel-cain",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-so-barry",
+      "stageId": "soma",
+      "artistName": "Barry Can't Swim",
+      "startTime": 1786149000000,
+      "endTime": 1786153500000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-barry-cant-swim",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-du-mariah",
+      "stageId": "duboce-triangle",
+      "artistName": "Mariah the Scientist",
+      "startTime": 1786152600000,
+      "endTime": 1786157100000,
+      "slotIndex": 1,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-mariah",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-le-clipse",
+      "stageId": "lands-end",
+      "artistName": "Clipse",
+      "startTime": 1786153500000,
+      "endTime": 1786156500000,
+      "slotIndex": 2,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-clipse",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-tp-labrinth",
+      "stageId": "twin-peaks",
+      "artistName": "Labrinth",
+      "startTime": 1786153500000,
+      "endTime": 1786157700000,
+      "slotIndex": 1,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-labrinth",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-su-turnstile",
+      "stageId": "sutro",
+      "artistName": "Turnstile",
+      "startTime": 1786155600000,
+      "endTime": 1786159200000,
+      "slotIndex": 1,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [
+        "hardcore punk",
+        "alternative metal"
+      ],
+      "jambaseArtistId": "jb-turnstile",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-tp-griz",
+      "stageId": "twin-peaks",
+      "artistName": "GRiZTRONICS",
+      "startTime": 1786159500000,
+      "endTime": 1786164900000,
+      "slotIndex": 2,
+      "isHeadliner": true,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-griztronics",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-le-charli",
+      "stageId": "lands-end",
+      "artistName": "Charli xcx",
+      "startTime": 1786160400000,
+      "endTime": 1786165200000,
+      "slotIndex": 3,
+      "isHeadliner": true,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [
+        "pop",
+        "hyperpop",
+        "electropop"
+      ],
+      "jambaseArtistId": "jb-charli-xcx",
+      "spotifyId": "0HNqrcl3vgc1U7U1SNtsvB",
+      "nextTourDate": null
+    },
+    {
+      "id": "set-fri-su-modestmouse",
+      "stageId": "sutro",
+      "artistName": "Modest Mouse",
+      "startTime": 1786161000000,
+      "endTime": 1786165200000,
+      "slotIndex": 2,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-modest-mouse",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sat-tp-tinashe",
+      "stageId": "twin-peaks",
+      "artistName": "Tinashe",
+      "startTime": 1786231800000,
+      "endTime": 1786235400000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-tinashe",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sat-le-lucy",
+      "stageId": "lands-end",
+      "artistName": "Lucy Dacus",
+      "startTime": 1786233600000,
+      "endTime": 1786237200000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-lucy-dacus",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sat-tp-dijon",
+      "stageId": "twin-peaks",
+      "artistName": "Dijon",
+      "startTime": 1786239000000,
+      "endTime": 1786242000000,
+      "slotIndex": 1,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-dijon",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sat-su-temper",
+      "stageId": "sutro",
+      "artistName": "The Temper Trap",
+      "startTime": 1786239000000,
+      "endTime": 1786242600000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-temper-trap",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sat-le-djo",
+      "stageId": "lands-end",
+      "artistName": "Djo",
+      "startTime": 1786240200000,
+      "endTime": 1786243800000,
+      "slotIndex": 1,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-djo",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sat-so-lane8",
+      "stageId": "soma",
+      "artistName": "Lane 8",
+      "startTime": 1786244400000,
+      "endTime": 1786249800000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-lane-8",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sat-tp-thexx",
+      "stageId": "twin-peaks",
+      "artistName": "The xx",
+      "startTime": 1786245000000,
+      "endTime": 1786250400000,
+      "slotIndex": 2,
+      "isHeadliner": true,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [
+        "indie pop",
+        "dream pop"
+      ],
+      "jambaseArtistId": "jb-the-xx",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sat-le-strokes",
+      "stageId": "lands-end",
+      "artistName": "The Strokes",
+      "startTime": 1786246500000,
+      "endTime": 1786251600000,
+      "slotIndex": 2,
+      "isHeadliner": true,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [
+        "indie rock",
+        "garage rock revival"
+      ],
+      "jambaseArtistId": "jb-the-strokes",
+      "spotifyId": "0epOFNiUfyON9EYx7Tpr6V",
+      "nextTourDate": {
+        "date": 1787450400000,
+        "venue": "Just Like Heaven Festival",
+        "city": "Pasadena, CA"
+      }
+    },
+    {
+      "id": "set-sat-su-pinkpantheress",
+      "stageId": "sutro",
+      "artistName": "PinkPantheress",
+      "startTime": 1786247100000,
+      "endTime": 1786251600000,
+      "slotIndex": 1,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-pinkpantheress",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sun-le-empire",
+      "stageId": "lands-end",
+      "artistName": "Empire of the Sun",
+      "startTime": 1786326300000,
+      "endTime": 1786329900000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-empire-of-the-sun",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sun-so-discolines",
+      "stageId": "soma",
+      "artistName": "Disco Lines",
+      "startTime": 1786329000000,
+      "endTime": 1786334400000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-disco-lines",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sun-tp-deathcab",
+      "stageId": "twin-peaks",
+      "artistName": "Death Cab for Cutie",
+      "startTime": 1786331400000,
+      "endTime": 1786336800000,
+      "slotIndex": 0,
+      "isHeadliner": true,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-death-cab",
+      "spotifyId": null,
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sun-le-rufus",
+      "stageId": "lands-end",
+      "artistName": "RÜFÜS DU SOL",
+      "startTime": 1786332300000,
+      "endTime": 1786338000000,
+      "slotIndex": 1,
+      "isHeadliner": true,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [
+        "melodic house",
+        "indie dance",
+        "electronic"
+      ],
+      "jambaseArtistId": "jb-rufus-du-sol",
+      "spotifyId": "5Pb27ujIyYb33zBqVysBkj",
+      "nextTourDate": null
+    },
+    {
+      "id": "set-sun-su-babykeem",
+      "stageId": "sutro",
+      "artistName": "Baby Keem",
+      "startTime": 1786333200000,
+      "endTime": 1786338000000,
+      "slotIndex": 0,
+      "isHeadliner": false,
+      "estimatedAudience": null,
+      "isFestivalDebut": false,
+      "isFinalShow": false,
+      "genreTags": [],
+      "jambaseArtistId": "jb-baby-keem",
+      "spotifyId": null,
+      "nextTourDate": null
+    }
+  ]
+}
