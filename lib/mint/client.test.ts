@@ -1,0 +1,54 @@
+import { describe, expect, it } from 'vitest';
+import { createFixtureMintClient, type ClaimMintArgs } from './client';
+
+const claim: ClaimMintArgs = {
+  userId: 'user-1',
+  mintable: {
+    setId: 'set-1', stageId: 'stage-1', artistName: 'Artist', photoClientId: 'photo-1',
+    dwellSeconds: 300, rarityScore: 0.4, state: 'AVAILABLE',
+  },
+  frameVariant: 'ranger_badge',
+  renderInput: {
+    photoUrl: 'blob:user-1-photo', frameVariant: 'ranger_badge', artistName: 'Artist', stageName: 'Stage',
+    dateLabel: 'Fri Aug 7', setWindowLabel: '7:00 – 8:00 PM', dwellLabel: '5 min',
+    rarityScore: 0.4, themePack: 'outside-lands-2026',
+  },
+};
+
+describe('fixture claim adapter', () => {
+  it('dedupes two fast claims for the same user/set pair', async () => {
+    const client = createFixtureMintClient({ latencyMs: 1 });
+    const [first, second] = await Promise.all([client.claim(claim), client.claim(claim)]);
+    expect(first.id).toBe(second.id);
+    expect(first.setId).toBe('set-1');
+  });
+
+  it('scopes dedupe to user and keeps the claimed variant authoritative', async () => {
+    const client = createFixtureMintClient();
+    const otherClaim: ClaimMintArgs = {
+      ...claim,
+      userId: 'user-2',
+      frameVariant: 'disco_bison',
+      renderInput: { ...claim.renderInput, photoUrl: 'blob:user-2-photo' },
+    };
+    const [first, second] = await Promise.all([client.claim(claim), client.claim(otherClaim)]);
+    expect(first.id).not.toBe(second.id);
+    expect(first.photoUrl).not.toBe(second.photoUrl);
+    expect(second.photoUrl).toBe('blob:user-2-photo');
+    expect(second.frameVariant).toBe('disco_bison');
+  });
+
+  it('never leaks seeded shelf cards into another user', async () => {
+    const seeded = {
+      ...claim.renderInput,
+      id: 'seed-card',
+      setId: 'set-1',
+      mintedAt: 1,
+      dwellSeconds: 300,
+    };
+    const client = createFixtureMintClient({ shelf: [seeded], initialUserId: 'seed-owner' });
+    const other = await client.claim({ ...claim, userId: 'other-user' });
+    expect(other.id).toBe('fixture-other-user-set-1');
+    expect(other.id).not.toBe(seeded.id);
+  });
+});

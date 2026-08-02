@@ -1,0 +1,32 @@
+.tile {
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #243324;
+  box-shadow: 0 12px 30px rgba(0,0,0,.28);
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.tile:hover, .tile:focus-visible { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,.4); }
+.tile:focus-visible { outline: 3px solid #e3cb7b; outline-offset: 3px; }
+.canvas { display: block; width: 100%; height: 100%; }
+.backdrop { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 24px; background: rgba(3,8,3,.78); backdrop-filter: blur(8px); }
+.detail { position: relative; width: min(78vw, 390px); perspective: 1200px; }
+.close { position: absolute; z-index: 4; top: -14px; right: -14px; width: 42px; height: 42px; border: 1px solid #9dab8f; border-radius: 50%; color: #fff8e8; background: #182218; font-size: 28px; cursor: pointer; }
+.flip { position: relative; display: block; width: 100%; aspect-ratio: 5 / 7; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.2,.7,.2,1); }
+.flipped { transform: rotateY(180deg); }
+.flipFront, .flipBack { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 18px; overflow: hidden; }
+.flipBack { display: flex; width: 100%; border: 0; flex-direction: column; padding: 34px 30px; color: #193222; background: #e8dfc1; transform: rotateY(180deg); text-align: left; box-shadow: inset 0 0 0 9px #274633, inset 0 0 0 12px #d5c28d; cursor: pointer; }
+.flipBack h2 { margin: 4px 0 20px; font: 700 clamp(28px, 8vw, 42px)/1 Georgia, serif; }
+.eyebrow { margin: 0; color: #68725a; font-size: 11px; font-weight: 800; letter-spacing: .16em; }
+.flipBack dl { margin: 0; }
+.flipBack dl div { display: flex; justify-content: space-between; gap: 20px; padding: 8px 0; border-bottom: 1px solid rgba(25,50,34,.18); }
+.flipBack dt { color: #65715e; }
+.flipBack dd { margin: 0; font-weight: 700; text-align: right; }
+.factNote { margin-top: auto; font-size: 12px; line-height: 1.4; color: #596655; }
+.flipHint { margin: 12px 0 0; color: #bac4ae; text-align: center; font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .tile, .flip { transition: none; } }
