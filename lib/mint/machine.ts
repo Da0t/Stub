@@ -1,0 +1,94 @@
+import type { CardState, SetId } from './contracts';
+
+export interface MintMachineState {
+  state: CardState;
+  setId: SetId | null;
+  cardId: string | null;
+  error: string | null;
+}
+
+export type MintMachineEvent =
+  | { type: 'ELIGIBILITY_CHANGED'; eligible: boolean; setId: SetId | null }
+  | { type: 'SPIN' }
+  | { type: 'CLAIMED'; cardId: string }
+  | { type: 'CLAIM_FAILED'; message: string }
+  | { type: 'RESET' };
+
+export const initialMintState: MintMachineState = {
+  state: 'LOCKED',
+  setId: null,
+  cardId: null,
+  error: null,
+};
+
+export function mintMachineReducer(
+  current: MintMachineState,
+  event: MintMachineEvent,
+): MintMachineState {
+  switch (event.type) {
+    case 'ELIGIBILITY_CHANGED':
+      if (current.state === 'MINTED' || current.state === 'SPINNING') return current;
+      return event.eligible && event.setId
+        ? { state: 'AVAILABLE', setId: event.setId, cardId: null, error: null }
+        : initialMintState;
+    case 'SPIN':
+      return current.state === 'AVAILABLE'
+        ? { ...current, state: 'SPINNING', error: null }
+        : current;
+    case 'CLAIMED':
+      return current.state === 'SPINNING'
+        ? { ...current, state: 'MINTED', cardId: event.cardId, error: null }
+        : current;
+    case 'CLAIM_FAILED':
+      return current.state === 'SPINNING'
+        ? { ...current, state: 'AVAILABLE', error: event.message }
+        : current;
+    case 'RESET':
+      return initialMintState;
+  }
+}
+
+export interface PendingMintRecord {
+  setId: SetId;
+  claimedAt: number | null;
+}
+
+export interface PendingMintStorage {
+  read(setId: SetId): PendingMintRecord | null;
+  write(record: PendingMintRecord): void;
+  remove(setId: SetId): void;
+}
+
+export function browserPendingMintStorage(prefix = 'wrapped:pending-mint:'): PendingMintStorage {
+  const storage = () => (typeof window === 'undefined' ? null : window.localStorage);
+  return {
+    read(setId) {
+      const raw = storage()?.getItem(prefix + setId);
+      if (!raw) return null;
+      try {
+        const value = JSON.parse(raw) as PendingMintRecord;
+        return value.setId === setId ? value : null;
+      } catch {
+        return null;
+      }
+    },
+    write(record) {
+      storage()?.setItem(prefix + record.setId, JSON.stringify(record));
+    },
+    remove(setId) {
+      storage()?.removeItem(prefix + setId);
+    },
+  };
+}
+
+export function persistAvailable(storage: PendingMintStorage, setId: SetId): void {
+  if (!storage.read(setId)) storage.write({ setId, claimedAt: null });
+}
+
+export function persistClaimed(
+  storage: PendingMintStorage,
+  setId: SetId,
+  claimedAt = Date.now(),
+): void {
+  storage.write({ setId, claimedAt });
+}
