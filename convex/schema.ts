@@ -23,7 +23,11 @@ export default defineSchema({
     startDate: v.number(),
     endDate: v.number(),
     timezone: v.string(),
-  }).index("by_jambaseFestivalId", ["jambaseFestivalId"]),
+  })
+    .index("by_jambaseFestivalId", ["jambaseFestivalId"])
+    // Addition: lets eventCompletion.scanEndedEvents find ended events
+    // without a table scan.
+    .index("by_endDate", ["endDate"]),
 
   stages: defineTable({
     eventId: v.id("events"),
@@ -78,7 +82,10 @@ export default defineSchema({
   })
     .index("by_userId_timestamp", ["userId", "timestamp"]) // resolution scan
     // Addition: idempotent ingest needs this or every batch is a table scan.
-    .index("by_userId_clientId", ["userId", "clientId"]),
+    .index("by_userId_clientId", ["userId", "clientId"])
+    // Addition: eventCompletion.scanEndedEvents discovers participants per
+    // event without scanning every photo.
+    .index("by_eventId_userId", ["eventId", "userId"]),
 
   dwellSamples: defineTable({
     userId: v.id("users"),
@@ -95,7 +102,9 @@ export default defineSchema({
   })
     .index("by_userId_timestamp", ["userId", "timestamp"]) // run grouping
     // Addition: same idempotency reason as photos.
-    .index("by_userId_clientId", ["userId", "clientId"]),
+    .index("by_userId_clientId", ["userId", "clientId"])
+    // Addition: same participant-discovery reason as photos.
+    .index("by_eventId_userId", ["eventId", "userId"]),
 
   dwellRuns: defineTable({
     userId: v.id("users"),
@@ -165,4 +174,23 @@ export default defineSchema({
     narrative: v.array(v.string()),
     stripBlobRef: v.optional(v.id("_storage")),
   }).index("by_userId_eventId", ["userId", "eventId"]),
+
+  // Path A (docs/CONVEX_PATH_A_CLAUDE.md): one row per (userId, eventId) is
+  // both the dedup key and the operational record for automated Wrapped
+  // generation after an event ends — a job row, not a generic queue table.
+  wrappedJobs: defineTable({
+    userId: v.id("users"),
+    eventId: v.id("events"),
+    state: v.union(
+      v.literal("PENDING"),
+      v.literal("RUNNING"),
+      v.literal("SUCCEEDED"),
+      v.literal("FAILED"),
+    ),
+    attempts: v.number(),
+    updatedAt: v.number(),
+    lastError: v.optional(v.string()),
+  })
+    .index("by_userId_eventId", ["userId", "eventId"]) // dedupe/claim
+    .index("by_state_updatedAt", ["state", "updatedAt"]),
 });
