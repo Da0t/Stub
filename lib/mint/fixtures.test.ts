@@ -64,4 +64,27 @@ describe('pickFrameVariant', () => {
     expect(ratio).toBeGreaterThan(0.04);
     expect(ratio).toBeLessThan(0.06);
   });
+
+  it('biases headliners, small stages, and night sets toward their contextual frames', () => {
+    const seeds = Array.from({ length: 12_000 }, (_, index) => `bias-user-${index}:set-1`);
+    const count = (set: SetRecord, variant: string) => seeds
+      .filter((seed) => pickFrameVariant(set, 0.5, seed) === variant).length;
+    const neutral = {
+      ...base,
+      startTime: Date.parse('2026-08-08T20:00:00Z'),
+      estimatedAudience: 10_000,
+      isHeadliner: false,
+    };
+    expect(count({ ...neutral, isHeadliner: true }, 'ranger_badge')).toBeGreaterThan(count(neutral, 'ranger_badge'));
+    expect(count({ ...neutral, estimatedAudience: 1_000 }, 'trail_marker')).toBeGreaterThan(count(neutral, 'trail_marker'));
+    expect(count({ ...neutral, startTime: Date.parse('2026-08-09T03:00:00Z') }, 'fog_layer'))
+      .toBeGreaterThan(count(neutral, 'fog_layer'));
+  });
+
+  it('produces collection variety across users while remaining stable per user', () => {
+    const variants = Array.from({ length: 200 }, (_, index) =>
+      pickFrameVariant(base, 0.5, `different-user-${index}:${base.id}`),
+    );
+    expect(new Set(variants).size).toBeGreaterThan(2);
+  });
 });

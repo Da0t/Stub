@@ -71,6 +71,8 @@ export interface FixtureMintClientOptions {
   mintableNow?: Mintable[];
   sets?: Record<string, SetRecord>;
   latencyMs?: number;
+  /** Explicit owner for seeded data; otherwise the first queried user owns it. */
+  initialUserId?: string;
 }
 
 /**
@@ -80,12 +82,17 @@ export interface FixtureMintClientOptions {
 export function createFixtureMintClient(options: FixtureMintClientOptions = {}): MintClient {
   const shelves = new Map<string, ShelfCard[]>();
   const mintables = new Map<string, Mintable[]>();
+  let seedOwner = options.initialUserId;
+  const ownsSeed = (userId: string) => {
+    seedOwner ??= userId;
+    return seedOwner === userId;
+  };
   const shelfFor = (userId: string) => {
-    if (!shelves.has(userId)) shelves.set(userId, [...(options.shelf ?? [])]);
+    if (!shelves.has(userId)) shelves.set(userId, ownsSeed(userId) ? [...(options.shelf ?? [])] : []);
     return shelves.get(userId)!;
   };
   const mintablesFor = (userId: string) => {
-    if (!mintables.has(userId)) mintables.set(userId, [...(options.mintableNow ?? [])]);
+    if (!mintables.has(userId)) mintables.set(userId, ownsSeed(userId) ? [...(options.mintableNow ?? [])] : []);
     return mintables.get(userId)!;
   };
   const listeners = new Set<() => void>();

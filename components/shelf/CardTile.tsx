@@ -50,10 +50,12 @@ export function CardTile({
   card,
   renderCard,
   onSelect,
+  tabIndex = 0,
 }: {
   card: ShelfCard;
   renderCard?: CardRenderer;
   onSelect(card: ShelfCard): void;
+  tabIndex?: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -73,6 +75,7 @@ export function CardTile({
       type="button"
       onClick={() => onSelect(card)}
       aria-label={`Open ${card.artistName} card`}
+      tabIndex={tabIndex}
     >
       <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
     </button>

@@ -35,13 +35,20 @@ export function CardDetail({
         </button>
         <div className={`${styles.flip} ${showBack ? styles.flipped : ''}`}>
           <div className={styles.flipFront}>
-            <CardTile card={card} renderCard={renderCard} onSelect={() => setShowBack(true)} />
+            <CardTile
+              card={card}
+              renderCard={renderCard}
+              onSelect={() => setShowBack(true)}
+              tabIndex={showBack ? -1 : 0}
+            />
           </div>
           <button
             type="button"
             className={styles.flipBack}
             onClick={() => setShowBack(false)}
             aria-label="Show card front"
+            aria-hidden={!showBack}
+            tabIndex={showBack ? 0 : -1}
           >
             <p className={styles.eyebrow}>YOU WERE THERE</p>
             <h2>{card.artistName}</h2>

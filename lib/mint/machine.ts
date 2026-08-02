@@ -28,6 +28,10 @@ export function mintMachineReducer(
   switch (event.type) {
     case 'ELIGIBILITY_CHANGED':
       if (current.state === 'MINTED' || current.state === 'SPINNING') return current;
+      // Once earned, leaving the polygon or set window cannot forfeit the card.
+      // A separate UI session may RESET after the sheet closes, while the
+      // pending-mint record and server remain authoritative across restarts.
+      if (current.state === 'AVAILABLE') return current;
       return event.eligible && event.setId
         ? { state: 'AVAILABLE', setId: event.setId, cardId: null, error: null }
         : initialMintState;
@@ -70,7 +74,8 @@ export function browserPendingMintStorage(prefix = 'wrapped:pending-mint:'): Pen
       if (!raw) return null;
       try {
         const value = JSON.parse(raw) as PendingMintRecord;
-        return value.setId === setId && (value.claimedAt === null || typeof value.claimedAt === 'number')
+        return value.setId === setId && (value.claimedAt === null
+          || (typeof value.claimedAt === 'number' && Number.isFinite(value.claimedAt) && value.claimedAt >= 0))
           ? value : null;
       } catch {
         return null;

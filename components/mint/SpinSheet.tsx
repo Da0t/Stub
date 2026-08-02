@@ -87,7 +87,8 @@ export function SpinSheet({
     const minimumReveal = reducedMotion
       ? Promise.resolve()
       : new Promise<void>((resolve) => window.setTimeout(resolve, 1_500));
-    const request = claim({ mintable, frameVariant: variant, renderInput });
+    // Promise chaining also captures an adapter that throws before returning a promise.
+    const request = Promise.resolve().then(() => claim({ mintable, frameVariant: variant, renderInput }));
     inFlight.current = request;
     try {
       const [claimed] = await Promise.all([request, minimumReveal]);
@@ -132,7 +133,11 @@ export function SpinSheet({
             <p className={styles.kicker}>PRESENCE VERIFIED</p>
             <h2 id="spin-title">Your {mintable.artistName} card is ready.</h2>
             <p>The card is already earned. The reveal only shows which frame you got.</p>
-            <div className={`${styles.cardSilhouette} ${machine.state === 'SPINNING' ? styles.spinning : ''}`}>
+            <div
+              className={`${styles.cardSilhouette} ${machine.state === 'SPINNING' ? styles.spinning : ''}`}
+              role="status"
+              aria-live="polite"
+            >
               <span>{machine.state === 'SPINNING' ? 'Revealing…' : mintable.artistName}</span>
             </div>
             {machine.error && <p className={styles.error} role="alert">{machine.error}</p>}
@@ -141,6 +146,7 @@ export function SpinSheet({
               type="button"
               onClick={() => void spin()}
               disabled={machine.state !== 'AVAILABLE'}
+              aria-busy={machine.state === 'SPINNING'}
             >
               {machine.state === 'SPINNING' ? 'Landing your card…' : 'Reveal my frame'}
             </button>

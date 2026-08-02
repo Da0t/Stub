@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   initialMintState,
+  browserPendingMintStorage,
   mintMachineReducer,
   persistAvailable,
   persistClaimed,
@@ -38,6 +39,15 @@ describe('mint machine', () => {
     });
   });
 
+  it('never revokes AVAILABLE when live eligibility later disappears', () => {
+    const available = mintMachineReducer(initialMintState, {
+      type: 'ELIGIBILITY_CHANGED', eligible: true, setId: 'set-1',
+    });
+    expect(mintMachineReducer(available, {
+      type: 'ELIGIBILITY_CHANGED', eligible: false, setId: null,
+    })).toBe(available);
+  });
+
   it('persists AVAILABLE and then records an immutable claim marker', () => {
     const storage = memoryStorage();
     persistAvailable(storage, 'set-1');
@@ -45,5 +55,25 @@ describe('mint machine', () => {
     persistAvailable(storage, 'set-1');
     persistClaimed(storage, 'set-1', 123);
     expect(storage.read('set-1')).toEqual({ setId: 'set-1', claimedAt: 123 });
+  });
+
+  it('restores AVAILABLE through a fresh browser adapter after reload', () => {
+    const values = new Map<string, string>();
+    const previousWindow = globalThis.window;
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: { localStorage: {
+        getItem: (key: string) => values.get(key) ?? null,
+        setItem: (key: string, value: string) => values.set(key, value),
+        removeItem: (key: string) => values.delete(key),
+      } },
+    });
+    try {
+      persistAvailable(browserPendingMintStorage(), 'set-reload');
+      expect(browserPendingMintStorage().read('set-reload')).toEqual({ setId: 'set-reload', claimedAt: null });
+    } finally {
+      if (previousWindow === undefined) delete (globalThis as { window?: Window }).window;
+      else Object.defineProperty(globalThis, 'window', { configurable: true, value: previousWindow });
+    }
   });
 });
