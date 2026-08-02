@@ -4,6 +4,7 @@ import { isIP } from 'node:net';
 import { createCanvas, GlobalFonts, loadImage, type Image } from '@napi-rs/canvas';
 import { drawCardLayers } from './core';
 import { fonts, palette, SHARE_HEIGHT, SHARE_WIDTH } from './theme';
+import { fitText } from './theme/typography';
 import type { CardRenderInput, RenderContext } from './types';
 
 const stripCache = new Map<string, Buffer>();
@@ -142,8 +143,18 @@ export async function renderStrip(cards: CardRenderInput[]): Promise<Buffer> {
   ctx.fillStyle = palette.ink;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = `900 74px ${fonts.display}`;
-  ctx.fillText('WRAPPED FOR THE WEEKEND', SHARE_WIDTH / 2, 82);
+  // Fit the title to the canvas instead of trusting a fixed 74px — at that size
+  // the display face overflows 1080px and renders as "RAPPED FOR THE WEEKEN",
+  // clipped at both ends. This is the headline of the shareable image.
+  const title = fitText(ctx, 'WRAPPED FOR THE WEEKEND', {
+    maxWidth: SHARE_WIDTH - 96,
+    maxSize: 74,
+    minSize: 40,
+    maxLines: 1,
+    weight: 900,
+  });
+  ctx.font = `900 ${title.size}px ${fonts.display}`;
+  ctx.fillText(title.lines[0], SHARE_WIDTH / 2, 82);
   ctx.font = `700 27px ${fonts.sans}`;
   ctx.fillText('OUTSIDE LANDS 2026  •  GOLDEN GATE PARK', SHARE_WIDTH / 2, 139);
 
