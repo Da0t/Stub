@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1400" role="img" aria-label="Abstract festival stage placeholder">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#74949b"/><stop offset=".58" stop-color="#d2b881"/><stop offset="1" stop-color="#1b3e35"/></linearGradient>
+    <radialGradient id="light"><stop stop-color="#fff7b8" stop-opacity=".9"/><stop offset="1" stop-color="#d65e37" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1000" height="1400" fill="url(#sky)"/>
+  <circle cx="235" cy="500" r="280" fill="url(#light)"/><circle cx="770" cy="540" r="320" fill="url(#light)"/>
+  <path d="M90 1040V615L500 390l410 225v425H790V680H210v360z" fill="#142a28"/>
+  <rect x="265" y="705" width="470" height="270" rx="12" fill="#d55d38"/><circle cx="500" cy="840" r="100" fill="#eab351"/>
+  <path d="M0 1120q130-125 260 0t260 0 260 0 220 0v280H0z" fill="#0c2824"/>
+  <g fill="#071c1a"><circle cx="130" cy="1100" r="30"/><rect x="113" y="1120" width="34" height="160"/><circle cx="310" cy="1080" r="34"/><rect x="290" y="1110" width="40" height="190"/><circle cx="690" cy="1100" r="30"/><rect x="672" y="1120" width="36" height="180"/><circle cx="875" cy="1070" r="35"/><rect x="854" y="1100" width="42" height="200"/></g>
+</svg>

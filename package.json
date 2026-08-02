@@ -1,0 +1,20 @@
+{
+  "name": "wrapped-weekend-card-render",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.80",
+    "next": "^15.4.6",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.17.1",
+    "@types/react": "^19.1.9",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
