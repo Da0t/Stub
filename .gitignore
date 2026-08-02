@@ -5,3 +5,23 @@ dist/
 .env
 .env.local
 .DS_Store
+
+# Codegen output. The README says commit convex/_generated/ — but on this
+# branch alone, path 4's functions import five other paths' not-yet-existing
+# files, so `npx convex dev` only produces a degraded fallback here
+# (api.d.ts typed as AnyApi instead of the real per-function types —
+# confirmed by actually running it). Committing that would be worse than
+# not having it. Regenerate for real once merged with paths 2/5/6/7/8 on
+# main, where a clean bundle is actually possible.
+convex/_generated/
+
+# Convex CLI's auto-installed AI-agent tooling (`npx convex ai-files
+# install`, which `npx convex dev` appears to trigger on first run):
+# 80+ files of skill docs/configs duplicated under .agents/ and .claude/.
+# Generic CLI scaffolding, not path 4-specific and not needed to run the
+# backend — left untracked rather than bloating the PR.
+.agents/
+.claude/
+AGENTS.md
+CLAUDE.md
+skills-lock.json

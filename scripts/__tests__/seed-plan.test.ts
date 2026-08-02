@@ -39,6 +39,26 @@ describe("buildSeedPlan", () => {
     expect(stages.size).toBeGreaterThanOrEqual(4);
   });
 
+  it("never attends two overlapping sets — a real attendee is in one place at a time", () => {
+    // Regression test: the planner previously picked concurrent sets on
+    // different stages (e.g. two real sets starting at the same instant),
+    // then seed-demo.ts generated simulated dwell presence at both
+    // simultaneously. A real sample stream can't do that, and feeding one
+    // to path 5's buildDwellRuns corrupted its contiguous-run grouping —
+    // almost every sample looked like a 1-2-sample fragment and got
+    // dropped, silently producing near-zero dwellRuns for the sets
+    // involved. Caught by running the actual pipeline end to end, not by
+    // this file's logic alone.
+    for (let i = 0; i < plan.attended.length; i++) {
+      for (let j = i + 1; j < plan.attended.length; j++) {
+        const a = plan.attended[i].set;
+        const b = plan.attended[j].set;
+        const overlaps = a.startTime < b.endTime && a.endTime > b.startTime;
+        expect(overlaps).toBe(false);
+      }
+    }
+  });
+
   it("leaves exactly 4 sets as discoveries (11 attended - 7 with a prior card)", () => {
     expect(plan.priorArtistNames).toHaveLength(7);
     expect(plan.attended.length - plan.priorArtistNames.length).toBe(4);

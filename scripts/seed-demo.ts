@@ -211,6 +211,12 @@ async function seedPriorCollection(userId: Id<"users">, artistNames: string[]) {
   }));
   const setIds = await client.mutation(api.grid.upsertSets, { eventId: priorEventId, sets: setInputs });
 
+  // A card needs real dwell, not just a photo: mint.claim re-verifies
+  // eligibility server-side (checkEligibility requires dwellSeconds >= the
+  // mint threshold), so each prior set needs enough dwell samples inside
+  // its window to produce a qualifying dwellRun, or every claim below is
+  // rightly rejected as LOCKED.
+  const sampleUploads: { clientId: string; timestamp: number; lat: number; lng: number; accuracy: number | null }[] = [];
   for (let i = 0; i < setIds.length; i++) {
     const storageId = await uploadPlaceholderPhoto();
     await client.mutation(api.ingest.photos, {
@@ -226,12 +232,35 @@ async function seedPriorCollection(userId: Id<"users">, artistNames: string[]) {
         },
       ],
     });
-    await client.mutation(api.mint.claim, {
-      userId,
-      setId: setIds[i],
-      photoClientId: `prior-photo-${i}`,
-      frameVariant: FRAME_VARIANTS[i % FRAME_VARIANTS.length],
-    });
+
+    // ~7 minutes of samples starting 5 minutes into the set, at 90s
+    // spacing — comfortably past the 5-minute mint threshold.
+    for (let m = 5; m <= 12; m += 1.5) {
+      sampleUploads.push({
+        clientId: `prior-sample-${i}-${m}`,
+        timestamp: Date.UTC(2026, 4, 1, 20 + i, m),
+        lat: jitter(37.7751),
+        lng: jitter(-122.4192),
+        accuracy: 10,
+      });
+    }
+  }
+  await client.mutation(api.ingest.samples, { userId, eventId: priorEventId, samples: sampleUploads });
+
+  // Let the scheduled resolution pass materialise dwellRuns before minting.
+  await sleep(3000);
+
+  for (let i = 0; i < setIds.length; i++) {
+    try {
+      await client.mutation(api.mint.claim, {
+        userId,
+        setId: setIds[i],
+        photoClientId: `prior-photo-${i}`,
+        frameVariant: FRAME_VARIANTS[i % FRAME_VARIANTS.length],
+      });
+    } catch (err) {
+      console.warn(`Could not mint prior card for ${artistNames[i]}: ${(err as Error).message}`);
+    }
   }
 }
 

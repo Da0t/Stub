@@ -133,6 +133,16 @@ export function buildSeedPlan(grid: Grid): SeedPlan {
   const weekdayFmt = new Intl.DateTimeFormat("en-US", { timeZone: grid.timezone, weekday: "short" });
   const localWeekday = (ts: number) => weekdayFmt.format(new Date(ts));
 
+  // A single attendee can only be in one place at a time: two chosen sets
+  // must never overlap in time, no matter which stages they're on. Skipping
+  // this check was a real bug — it let the planner pick two concurrent
+  // sets on different stages and then generate simulated dwell presence at
+  // both simultaneously, which corrupts buildDwellRuns' contiguous-run
+  // grouping (a real user's sample stream is never in two places at once,
+  // so path 5's algorithm doesn't need to and doesn't handle it).
+  const overlapsAny = (candidate: SetRecord, picked: SetRecord[]) =>
+    picked.some((p) => candidate.startTime < p.endTime && candidate.endTime > p.startTime);
+
   // Pick 11 sets, night-weighted, spread across stages: for each day, take
   // an even split from that day's target count, walking stages in rotation
   // (round-robin) so consecutive picks vary rather than clustering on one
@@ -156,27 +166,46 @@ export function buildSeedPlan(grid: Grid): SeedPlan {
     const stageKeys = [...byStage.keys()];
     let stageCursor = 0;
     let picked = 0;
-    while (picked < target && stageKeys.length > 0) {
+    let spins = 0;
+    while (picked < target && stageKeys.length > 0 && spins <= stageKeys.length * pool.length) {
+      spins++;
       const key = stageKeys[stageCursor % stageKeys.length];
       const bucket = byStage.get(key)!;
-      if (bucket.length > 0) {
-        chosen.push(bucket.shift()!);
-        picked++;
-      }
       stageCursor++;
-      if (stageCursor > stageKeys.length * pool.length) break; // pool exhausted
+
+      // Earliest still-available set on this stage that doesn't overlap an
+      // already-chosen set. Bucket is chronological, so the first hit is
+      // also the earliest — no need to scan past it.
+      const idx = bucket.findIndex((s) => !overlapsAny(s, chosen));
+      if (idx === -1) continue; // nothing usable left on this stage right now
+      const [s] = bucket.splice(idx, 1);
+      chosen.push(s);
+      picked++;
+    }
+  }
+
+  // Backfill from the full grid (any day, any hour) if the evening-preferred
+  // pools couldn't reach the target — concurrency collapses an evening's
+  // worth of same-slot cross-stage sets down to one pickable slot each, so
+  // a grid with few evening slots can hit that ceiling well under 11.
+  if (chosen.length < TARGET_TOTAL) {
+    for (const s of sets) {
+      if (chosen.length >= TARGET_TOTAL) break;
+      if (!chosen.includes(s) && !overlapsAny(s, chosen)) chosen.push(s);
     }
   }
   const attendedSets = chosen.slice(0, TARGET_TOTAL);
 
   // Ensure >= 4 distinct stages: if the round-robin above landed on fewer,
-  // swap in sets from missing stages.
+  // swap in sets from missing stages — but only a candidate that doesn't
+  // newly overlap another already-attended set.
   let distinctStages = new Set(attendedSets.map((s) => stageById.get(s.stageId)?.name));
   if (distinctStages.size < 4) {
     for (const s of sets) {
       if (distinctStages.size >= 4) break;
       const name = stageById.get(s.stageId)?.name;
-      if (name && !distinctStages.has(name) && !attendedSets.includes(s)) {
+      const others = attendedSets.slice(0, -1);
+      if (name && !distinctStages.has(name) && !attendedSets.includes(s) && !overlapsAny(s, others)) {
         attendedSets[attendedSets.length - 1] = s;
         distinctStages = new Set(attendedSets.map((x) => stageById.get(x.stageId)?.name));
       }
