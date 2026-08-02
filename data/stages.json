@@ -1,0 +1,108 @@
+{
+  "_comment": "Path 2 source geometry. Five stage polygons in the western half of Golden Gate Park, drawn generously around the crowd bowl (people stand in front of a stage, sometimes 100m back). Coordinates are [lat, lng], latitude first, longitude negative (SF ~37.77 N, -122.49 W). Centroids are NOT stored here; lib/geo/polygons.ts computes them so the overlap tie-break never depends on an eyeballed number. Buffers in metres: Duboce Triangle gets 45 because it sits in eucalyptus at McLaren Pass and the canopy wrecks GPS. Zones are non-stage areas kept only so the debug map is legible and the null case reads as intentional; they are never resolved to.",
+  "stages": [
+    {
+      "id": "lands-end",
+      "name": "Lands End",
+      "bufferMeters": 30,
+      "polygon": [
+        [37.76855, -122.4958],
+        [37.768175, -122.494977],
+        [37.767425, -122.494977],
+        [37.76705, -122.4958],
+        [37.767425, -122.496623],
+        [37.768175, -122.496623]
+      ]
+    },
+    {
+      "id": "twin-peaks",
+      "name": "Twin Peaks",
+      "bufferMeters": 30,
+      "polygon": [
+        [37.7719, -122.4968],
+        [37.77155, -122.496021],
+        [37.77085, -122.496021],
+        [37.7705, -122.4968],
+        [37.77085, -122.497579],
+        [37.77155, -122.497579]
+      ]
+    },
+    {
+      "id": "sutro",
+      "name": "Sutro",
+      "bufferMeters": 25,
+      "polygon": [
+        [37.77125, -122.4876],
+        [37.770925, -122.486864],
+        [37.770275, -122.486864],
+        [37.76995, -122.4876],
+        [37.770275, -122.488336],
+        [37.770925, -122.488336]
+      ]
+    },
+    {
+      "id": "soma",
+      "name": "SOMA",
+      "bufferMeters": 20,
+      "polygon": [
+        [37.769, -122.4906],
+        [37.7687, -122.489907],
+        [37.7681, -122.489907],
+        [37.7678, -122.4906],
+        [37.7681, -122.491293],
+        [37.7687, -122.491293]
+      ]
+    },
+    {
+      "id": "duboce-triangle",
+      "name": "Duboce Triangle",
+      "bufferMeters": 45,
+      "polygon": [
+        [37.7699, -122.4832],
+        [37.7695, -122.482334],
+        [37.7687, -122.482334],
+        [37.7683, -122.4832],
+        [37.7687, -122.484066],
+        [37.7695, -122.484066]
+      ]
+    }
+  ],
+  "zones": [
+    {
+      "name": "Wine Lands",
+      "polygon": [
+        [37.76665, -122.4938],
+        [37.76665, -122.4928],
+        [37.76625, -122.4928],
+        [37.76625, -122.4938]
+      ]
+    },
+    {
+      "name": "Beer Lands",
+      "polygon": [
+        [37.76835, -122.4936],
+        [37.76835, -122.4928],
+        [37.76785, -122.4928],
+        [37.76785, -122.4936]
+      ]
+    },
+    {
+      "name": "Grass Lands",
+      "polygon": [
+        [37.76985, -122.4894],
+        [37.76985, -122.4886],
+        [37.76935, -122.4886],
+        [37.76935, -122.4894]
+      ]
+    },
+    {
+      "name": "Dolores",
+      "polygon": [
+        [37.77025, -122.4858],
+        [37.77025, -122.485],
+        [37.76975, -122.485],
+        [37.76975, -122.4858]
+      ]
+    }
+  ]
+}
