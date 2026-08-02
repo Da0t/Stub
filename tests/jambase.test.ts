@@ -202,6 +202,7 @@ test("nextTourDate prefers a later Bay Area show over an earlier remote show", a
     return json({ events: [
       { startDate: "bad", location: {} },
       { startDate: "2026-08-09", location: { name: "Past", address: { addressLocality: "Oakland" } } },
+      { name: "Outside Lands 2026", startDate: "2026-08-27", location: { name: "Golden Gate Park", address: { addressLocality: "San Francisco" } } },
       { startDate: "2026-08-27", location: { name: "Reading", address: { addressLocality: "Reading" } } },
       { startDate: "2026-11-01", location: { name: "Fox Theater", address: { addressLocality: "Oakland" } } },
     ] });

@@ -125,11 +125,16 @@ async function main() {
   const input = live ? await pullFromJamBase(offline.stages) : offline;
   if (!live) console.log("- No JAMBASE_API_KEY; rebuilding from committed raw snapshot.");
   const grid = toGrid(input.events, input.stages, input.artistMeta);
-  writeFileSync(GRID_PATH, JSON.stringify(grid, null, 2) + "\n");
-  console.log(`✓ wrote ${grid.sets.length} sets / ${grid.stages.length} stages to data/grid.sample.json.`);
   const provenance = live
     ? "JamBase lineup/day fields; stage/time fields published separately or explicitly synthesized"
     : "Committed snapshot; inspect RawJamBaseEvent._provenance before claiming schedule accuracy";
+  // Validate before touching the committed offline fallback. JamBase's
+  // performer feed is day-only, so a live pull without the separately sourced
+  // stage schedule must fail safely instead of replacing the working grid with
+  // an empty one.
+  toBootstrapPayload(grid, provenance);
+  writeFileSync(GRID_PATH, JSON.stringify(grid, null, 2) + "\n");
+  console.log(`✓ wrote ${grid.sets.length} sets / ${grid.stages.length} stages to data/grid.sample.json.`);
   await writeToConvex(grid, provenance);
 }
 

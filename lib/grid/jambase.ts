@@ -193,22 +193,27 @@ export async function nextTourDate(
       const address = (location.address ?? {}) as Record<string, unknown>;
       return {
         date: Date.parse(String(event.startDate ?? "")),
+        name: String(event.name ?? ""),
         venue: String(location.name ?? ""),
         city: String(address.addressLocality ?? ""),
       };
     })
     .filter((event: { date: number }) =>
-      Number.isFinite(event.date) && event.date > now
+      Number.isFinite(event.date) &&
+      event.date > now &&
+      // The final Wrapped card is shown after Outside Lands. Do not surface
+      // the festival itself as the artist's "next" show.
+      !/outside\s+lands/i.test((event as { name?: string }).name ?? "")
     )
     .sort((left: { date: number }, right: { date: number }) =>
       left.date - right.date
     );
 
-  return (
+  const selected =
     upcoming.find((event: { city: string }) =>
       /San Francisco|Oakland|Berkeley|San Jose/i.test(event.city)
-    ) ??
-    upcoming[0] ??
-    null
-  );
+    ) ?? upcoming[0];
+  return selected
+    ? { date: selected.date, venue: selected.venue, city: selected.city }
+    : null;
 }
