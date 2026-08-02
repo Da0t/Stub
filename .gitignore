@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Convex codegen — regenerated on main where a clean bundle is possible
+convex/_generated/
+
+# Convex CLI auto-installed agent tooling (not project code)
+.agents/
+.claude/
+AGENTS.md
+CLAUDE.md
+skills-lock.json
