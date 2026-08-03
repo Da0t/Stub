@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   // Native Skia binding must be loaded by Node in the strip route (path 7),
   // not parsed by the bundler.
   serverExternalPackages: ['@napi-rs/canvas'],

@@ -56,12 +56,15 @@ const PLACEHOLDER_PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
 async function main() {
-  const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL ?? process.env.CONVEX_URL;
-  if (!CONVEX_URL) {
+  const configuredConvexUrl = process.env.NEXT_PUBLIC_CONVEX_URL ?? process.env.CONVEX_URL;
+  if (!configuredConvexUrl) {
     throw new Error(
       "NEXT_PUBLIC_CONVEX_URL is not set. Run `npx convex dev` to link a deployment first.",
     );
   }
+  // ConvexHttpClient requires the deployment origin without a trailing slash.
+  // Deployment dashboards commonly copy the URL with one, so accept both.
+  const CONVEX_URL = configuredConvexUrl.replace(/\/+$/, "");
   client = new ConvexHttpClient(CONVEX_URL);
 
   console.log(`Seeding against ${CONVEX_URL}`);
@@ -84,7 +87,13 @@ async function main() {
 
   await seedWeekend(userId, eventId, grid, plan);
 
-  console.log(`Seed complete. Demo user: ${userId} (deviceId=${DEMO_DEVICE_ID})`);
+  // Populate the recap too, so a fresh deployment can demonstrate the
+  // collection and the end-of-weekend story without a second manual step.
+  // The action tolerates missing optional AI/render configuration and still
+  // persists the deterministic stats derived from the seeded dwell history.
+  await client.action(api.wrapped.compute, { userId, eventId });
+
+  console.log(`Seed complete. Demo user: ${userId} (deviceId=${DEMO_DEVICE_ID}); Wrapped is ready.`);
 }
 
 // ---------------------------------------------------------------------------
