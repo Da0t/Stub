@@ -7,7 +7,7 @@ import { useEffect } from "react";
 // no camera/IndexedDB/Convex wiring, mock data baked into the mockup itself.
 export default function DemoPage() {
   useEffect(() => {
-    window.location.replace("/stub-mockup/Stub.dc.html");
+    window.location.replace(`/stub-mockup/Stub.dc.html${window.location.search}`);
   }, []);
   return null;
 }
