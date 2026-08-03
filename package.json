@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "postbuild": "rm -rf dist && mkdir -p dist/server/.next dist/.openai && cp -LR .next/standalone/. dist/server && cp -LR .next/static dist/server/.next/static && cp dist/server/server.js dist/server/index.js && cp .openai/hosting.json dist/.openai/hosting.json",
+    "postbuild": "rm -rf dist && mkdir -p dist/server/.next dist/.openai && cp -LR .next/standalone/. dist/server && cp -LR .next/static dist/server/.next/static && cp dist/server/server.js dist/server/index.js && cp .openai/hosting.json dist/.openai/hosting.json && rm -rf dist/server/node_modules/@napi-rs/canvas dist/server/node_modules/@napi-rs/canvas-*",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
