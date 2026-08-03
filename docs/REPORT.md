@@ -149,13 +149,65 @@ Convex holds what you collected, and does two things that are visible in the pit
 
 **Persistence carries the collection across events.** The shelf is not a session; it is a collection that grows festival over festival. You can tell someone has been to six festivals by looking at their shelf.
 
-The data model spans eleven tables — `users`, `events`, `stages`, `sets`, `photos`, `dwellSamples`, `dwellRuns`, `cards`, `tasks`, `taskCompletions`, `wrapped` — with indexes chosen for the specific access patterns: `photos` by `(userId, timestamp)` for the resolution scan, `dwellSamples` likewise for run grouping, `cards` by `(userId, setId)` to dedupe on mint, and `sets` by `(eventId, stageId, startTime)` for the grid lookup.
+#### Data model
 
-Mutations handle idempotent ingest (keyed on the device-generated `clientId`, so an offline retry never double-writes) and mint claims (deduped so a double-tap cannot produce two cards). Reactive queries expose `shelf`, `mintableNow`, `taskProgress` and `wrapped`.
+Eleven tables in `convex/schema.ts`. Every index exists to serve one named access pattern — none are speculative:
 
-Identity is a `deviceId` UUID in localStorage exchanged for a user row. No login — nobody is typing an email address at 9PM in a field.
+| Table | Indexes | Serves |
+|---|---|---|
+| `users` | `by_deviceId` | identity lookup on every app open |
+| `events` | `by_jambaseFestivalId` | join our event row to JamBase's festival |
+| `stages` | `by_eventId` | load five polygons for an event |
+| `sets` | `by_eventId`, `by_eventId_stageId_startTime` | **the grid lookup** — the hot path for resolving a photo to an artist |
+| `photos` | `by_userId_timestamp`, `by_userId_clientId` | resolution scan; idempotent ingest |
+| `dwellSamples` | `by_userId_timestamp`, `by_userId_clientId` | contiguous-run grouping; idempotent ingest |
+| `dwellRuns` | `by_userId_setId`, `by_userId` | recompute-and-replace on re-run; all runs for `deriveSignals` |
+| `cards` | `by_userId_setId`, `by_userId` | **mint dedupe**; shelf newest-first |
+| `tasks` | `by_eventId` | active tasks for an event |
+| `taskCompletions` | `by_userId_taskId` | completion check without a scan |
+| `wrapped` | `by_userId_eventId` | one Wrapped per user per festival |
 
-Geometry and eligibility live in pure functions imported by the Convex layer rather than reimplemented inside it, so a polygon correction has exactly one place to change and the same code runs client-side offline and server-side during resolution.
+The `(eventId, stageId, startTime)` composite on `sets` is the one that matters most: it is a range scan over a single stage's day, which is exactly the shape of "what was playing here at this timestamp."
+
+#### Function surface
+
+Sixteen functions across nine modules, and the *kind* of each is a deliberate architectural choice:
+
+**Mutations (client-callable):**
+- `users.ensure` — deviceId → user row
+- `ingest.photos`, `ingest.samples` — idempotent bulk upsert
+- `ingest.generateUploadUrl` — hands the client a one-shot URL so photo blobs stream directly into Convex file storage rather than through a mutation payload
+- `mint.claim` — deduped card creation
+- `tasks.verify` — completion check
+- `grid.bootstrap`, `grid.upsertEvent`, `grid.upsertStages`, `grid.upsertSets` — the JamBase write path
+
+**Queries (reactive — these are live subscriptions, not fetches):**
+`queries.grid`, `queries.shelf`, `queries.mintableNow`, `queries.taskProgress`, `queries.wrapped`
+
+**Internal (not reachable from the client):**
+- `resolve.run` — an `internalMutation`. Resolution is scheduled server-side after ingest, so the phone never waits on it and no client can trigger a recompute of someone else's facts.
+- `wrappedData.persist` — an `internalMutation` that writes the finished Wrapped.
+
+**Action:**
+- `wrapped.compute` — a Convex **action** with `"use node"`, because it calls OpenAI and actions are the only function kind permitted to reach external APIs. It reads via `ctx.runQuery(internal.wrappedData.gatherStats)` and writes via `ctx.runMutation(internal.wrappedData.persist)`.
+
+That last split is worth calling out, because it is Convex's transactional model doing real work for us. Mutations are transactional and cannot perform network I/O; actions can perform I/O but are not transactional. By putting the OpenAI call in an action and both the read and the write in transactional internal functions, **a slow or failed model call can never leave a half-written Wrapped behind.** The stats are gathered atomically, the model runs outside the transaction, and the result is persisted atomically. It also enforces the core invariant structurally: the only function that can reach a model is the one that produces prose, and it has no ability to write facts.
+
+#### Idempotency and dedupe
+
+Two correctness properties that the festival's network conditions make non-negotiable:
+
+**Ingest is idempotent on the device-generated `clientId`.** A phone that loses signal mid-drain retries the same batch; the `by_userId_clientId` index makes the existence check a point lookup rather than a scan, so retrying costs nothing and duplicates nothing. Without this index the check would be a table scan on every batch — the difference between a sync that works in a field and one that doesn't.
+
+**Mint is deduped on `(userId, setId)`.** Tapping spin twice, or racing an optimistic client insert against the server, cannot produce two cards for one set. A duplicate card on stage would undermine the "one record per set you actually attended" claim in the most visible way possible.
+
+#### Pure functions, one source of truth
+
+Geometry, dwell arithmetic and mint eligibility live in `lib/geo`, `lib/dwell` and `lib/mint` as pure functions, and the Convex layer *imports* them rather than reimplementing them. This means the same point-in-polygon code runs client-side while offline and server-side during resolution — a correction to a stage polygon has exactly one place to change, and the client and server can never disagree about whether you were at Lands End.
+
+#### Identity
+
+A `deviceId` UUID in localStorage exchanged for a user row via `users.ensure`. No login, no email, no password — nobody is typing credentials at 9PM in a field, and requiring it would cost us most of the captures we exist to collect.
 
 ### 4.3 OpenAI — perception and voice
 
