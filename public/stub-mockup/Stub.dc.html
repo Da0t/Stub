@@ -559,6 +559,12 @@ const SHELF_SEEDS = [
   ['set-sat-so-lane8', 3300, 0.38], ['set-fri-du-sierra', 1260, 0.91],
 ];
 
+// The demo account is seeded by scripts/seed-demo.ts. Keep the design
+// artifact fully usable offline by falling back to SHELF_SEEDS if the live
+// query is unavailable, but prefer the real cards whenever Convex is online.
+const DEMO_CONVEX_URL = 'https://rightful-leopard-643.convex.cloud';
+const DEMO_USER_ID = 'k978qd8gambd32t8779e7r09718bprep';
+
 // One panel per field in DerivedSignals (docs/CONTRACTS.md §4). Copy keeps the
 // path-8 narrative constraints: descriptive, second person, never evaluative,
 // never a number the model computed.
@@ -697,12 +703,13 @@ class Component extends DCLogic {
     intent:'I want people to catch my opener, they always miss it',
     copy:null, writing:false,
     labName:'Godspeed You! Black Emperor', labRarity:0.9,
+    liveShelf:null,
   };
 
   videoRef = React.createRef();
   stream = null;
 
-  componentDidMount() { this.startCam(); }
+  componentDidMount() { this.startCam(); this.loadLiveDemoShelf(); }
   componentWillUnmount() { this.stopCam(); }
   componentDidUpdate() {
     const v = this.videoRef.current;
@@ -711,6 +718,22 @@ class Component extends DCLogic {
 
   stopCam = () => {
     if (this.stream) { this.stream.getTracks().forEach((t) => t.stop()); this.stream = null; }
+  };
+
+  loadLiveDemoShelf = () => {
+    fetch(`${DEMO_CONVEX_URL}/api/query`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body:JSON.stringify({ path:'queries:shelf', args:{ userId:DEMO_USER_ID }, format:'json' }),
+    })
+      .then((res) => res.ok ? res.json() : null)
+      .then((payload) => {
+        const cards = payload && payload.status === 'success' ? payload.value : null;
+        // Prior-event cards intentionally establish discovery history but are
+        // not part of this weekend's shelf demo.
+        if (Array.isArray(cards)) this.setState({ liveShelf:cards.filter((c) => c.stageName !== 'Prior Stage') });
+      })
+      .catch(() => {});
   };
 
   // Mirrors app/page.tsx (path/1-capture-offline): the same failure kinds, same copy.
@@ -777,6 +800,20 @@ class Component extends DCLogic {
   go = (screen) => () => this.setState({ screen, drawer:false });
 
   shelf() {
+    if (this.state.liveShelf && this.state.liveShelf.length) {
+      return this.state.liveShelf.map((card, i) => {
+        const set = SETS.find((s) => s.artistName === card.artistName && s.stageId === STAGES.find((stage) => stage.name === card.stageName)?.id)
+          || SETS.find((s) => s.artistName === card.artistName);
+        return {
+          id:card.id, artistName:card.artistName, stageName:card.stageName,
+          frameVariant:card.frameVariant,
+          dateLabel:set ? dayFmt.format(set.startTime).replace(',', '') : 'Outside Lands 2026',
+          setWindowLabel:set ? fmtWindow(set) : 'Festival set',
+          dwellLabel:`${Math.round(card.dwellSeconds / 60)} min`,
+          rarityScore:card.rarityScore, delay:`${i * 70}ms`,
+        };
+      });
+    }
     return SHELF_SEEDS.map(([setId, dwell, rarity], i) => {
       const s = SETS.find((x) => x.id === setId);
       const stage = STAGES.find((x) => x.id === s.stageId);
