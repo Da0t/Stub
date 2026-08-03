@@ -210,6 +210,39 @@ export async function capture(): Promise<CapturedPhoto> {
   return photo;
 }
 
+/**
+ * Capture from a picked file instead of a live stream.
+ *
+ * Same record, same warm position, same write-before-resolve — the only
+ * difference is where the pixels came from. A file input with
+ * `capture="environment"` opens the camera directly on a phone and a picker on
+ * a laptop, so this path works on hardware where getUserMedia does not: no
+ * rear camera, a denied permission, or an insecure context (http:// on a LAN
+ * IP, where getUserMedia is unavailable by spec and no code can fix it).
+ *
+ * The photo is still the user's own, so the card face is still theirs — the
+ * product claim is unchanged.
+ */
+export async function captureFromFile(file: Blob): Promise<CapturedPhoto> {
+  if (!file || file.size === 0) {
+    throw new CameraError("unknown", "Picked file was empty.");
+  }
+
+  const warm = getWarmPosition();
+  const photo: CapturedPhoto = {
+    clientId: newClientId(),
+    ts: Date.now(),
+    lat: warm ? warm.lat : NO_FIX,
+    lng: warm ? warm.lng : NO_FIX,
+    accuracy: warm ? warm.accuracy : null,
+    blob: file,
+    synced: false,
+  };
+
+  await putPhoto(photo);
+  return photo;
+}
+
 /** Whether a photo's coordinate is a real fix (vs. the NO_FIX sentinel). */
 export function hasFix(photo: CapturedPhoto): boolean {
   return Number.isFinite(photo.lat) && Number.isFinite(photo.lng);

@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useCamera } from "@/lib/capture/useCamera";
+import { captureFromFile } from "@/lib/capture/camera";
 import { startPositionWatch, spoofToStage } from "@/lib/offline/position";
 import {
   startSync,
@@ -54,6 +55,30 @@ export default function CapturePage() {
       busyRef.current = false;
     }
   }, [ready, takePhoto]);
+
+  // Fallback capture path. `capture="environment"` on the input opens the
+  // camera directly on a phone and a file picker on a laptop, so this works
+  // where getUserMedia cannot: no rear camera, denied permission, or an
+  // insecure context (http:// on a LAN IP — unavailable by spec, unfixable in
+  // code). The photo is still the user's own, so the card face is still theirs.
+  const onPickFile = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      event.target.value = ""; // allow re-picking the same file
+      if (!file || busyRef.current) return;
+      busyRef.current = true;
+      try {
+        await captureFromFile(file);
+        setFlashKey((k) => k + 1);
+        void notifyPendingChanged();
+      } catch {
+        // Same silent-failure policy as the shutter.
+      } finally {
+        busyRef.current = false;
+      }
+    },
+    [],
+  );
 
   // Long-press the viewfinder to advance the demo spoof to the next stage
   // centroid (dev affordance). Query-param spoof (?spoof=lat,lng) also works.
@@ -158,6 +183,22 @@ export default function CapturePage() {
           <span className="sr-only">Take photo</span>
         </button>
       </div>
+
+      {/* Fallback capture. Always mounted — it is the only way in when the live
+          stream is unavailable, and a harmless second option when it is not. */}
+      <label
+        className="absolute right-4 rounded-full border border-white/30 bg-black/50 px-4 py-2 text-sm text-white/80 backdrop-blur active:scale-95"
+        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 44px)" }}
+      >
+        {status === "live" ? "Upload" : "Choose photo"}
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={onPickFile}
+          className="sr-only"
+        />
+      </label>
 
       {/* Keyframes inline so app/globals.css (not owned by path 1) is untouched. */}
       <style>{`
