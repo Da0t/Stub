@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  html, body { margin:0; padding:0; background:#e4d9b5; }
+  body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  * { box-sizing:border-box; }
+  a { color:#17352f; text-decoration:underline; text-underline-offset:3px; }
+  a:hover { color:#d96842; }
+  ::-webkit-scrollbar { width:0; height:0; }
+  @keyframes stubScreenIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+  @keyframes stubFade { from { opacity:0; } to { opacity:1; } }
+  @keyframes stubDrawerIn { from { transform:translateX(-100%); } to { transform:translateX(0); } }
+  @keyframes stubNavIn { from { opacity:0; transform:translateX(-22px); } to { opacity:1; transform:none; } }
+  @keyframes stubTileIn { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:none; } }
+  @keyframes stubSheetUp { from { transform:translateY(102%); } to { transform:translateY(0); } }
+  @keyframes stubReveal { 0% { transform:rotateY(0) scale(1); } 45% { transform:rotateY(170deg) scale(.88); filter:brightness(1.4); } 100% { transform:rotateY(360deg) scale(1); } }
+  @keyframes stubLand { from { transform:translateY(-28px) scale(1.09); opacity:0; } to { transform:none; opacity:1; } }
+  @keyframes stubFlash { 0% { opacity:.92; } 100% { opacity:0; } }
+  @keyframes stubRing { 0% { transform:scale(1); opacity:.9; } 100% { transform:scale(1.7); opacity:0; } }
+  @keyframes stubPulse { 0%,100% { box-shadow:0 0 0 0 rgba(217,104,66,.5); } 50% { box-shadow:0 0 0 9px rgba(217,104,66,0); } }
+  @keyframes stubDrift { from { transform:translate3d(-4%,0,0) scale(1.06); } to { transform:translate3d(4%,-2%,0) scale(1.12); } }
+  @keyframes stubBar { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+</style>
+</helmet>
+
+<div style="min-height:100vh; background:#e4d9b5; color:#17352f; font-family:Arial, Helvetica, sans-serif; display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:center; gap:clamp(0px,3vw,44px); padding:clamp(0px,3vw,44px);">
+
+  <!-- ══════════ PHONE ══════════ -->
+  <div style="position:relative; flex:0 0 auto; width:min(100%,402px);">
+    <div style="position:relative; overflow:hidden; background:#17352f; border-radius:clamp(0px,4.4vw,42px); padding:clamp(0px,1.1vw,11px); box-shadow:clamp(0px,1.4vw,14px) clamp(0px,1.5vw,15px) 0 #b8a672;">
+      <div style="position:relative; overflow:hidden; height:min(100svh,838px); border-radius:clamp(0px,3.4vw,32px); background:#eee3c3; display:flex; flex-direction:column;">
+
+        <!-- status bar -->
+        <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:12px 22px 4px; font-size:13px; font-weight:800; color:#17352f;">
+          <span>8:45</span>
+          <div style="display:flex; align-items:center; gap:5px;">
+            <div style="width:15px; height:8px; border:1.5px solid #17352f;"></div>
+            <div style="width:15px; height:8px; background:#17352f;"></div>
+          </div>
+        </div>
+
+        <!-- top bar -->
+        <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:6px 16px 12px; border-bottom:2px solid #17352f;">
+          <button onClick="{{ openDrawer }}" aria-label="Open menu" style="display:flex; flex-direction:column; gap:4px; width:40px; height:36px; align-items:center; justify-content:center; border:2px solid #17352f; border-radius:0; background:transparent; cursor:pointer; transition:background .18s ease, transform .12s ease;" style-hover="background:#17352f" style-active="transform:translate(1px,1px)">
+            <span style="display:block; width:16px; height:2px; background:#17352f;"></span>
+            <span style="display:block; width:16px; height:2px; background:#17352f;"></span>
+            <span style="display:block; width:10px; height:2px; background:#d96842;"></span>
+          </button>
+          <div style="display:flex; align-items:center; gap:7px;">
+            <div style="width:9px; height:22px; background:#d96842;"></div>
+            <div style="font-family:Georgia,serif; font-weight:700; font-size:21px; letter-spacing:.24em; padding-left:2px;">STUB</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; padding:6px 10px; border:2px solid #17352f; font-size:10px; font-weight:800; letter-spacing:.12em;">
+            <span style="display:block; width:7px; height:7px; border-radius:50%; background:#17352f;"></span>58° FOG
+          </div>
+        </div>
+
+        <!-- ── CAPTURE ── -->
+        <sc-if value="{{ isCapture }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1 1 auto; position:relative; overflow:hidden; padding:14px 16px 0; animation:stubScreenIn .42s cubic-bezier(.2,.7,.2,1) both;">
+
+            <div style="position:absolute; left:16px; right:16px; top:14px; bottom:100px; border:2px solid #17352f; box-shadow:7px 8px 0 #17352f; overflow:hidden; background:#17352f;">
+              <video ref="{{ videoRef }}" playsInline="{{ true }}" muted="{{ true }}" autoPlay="{{ true }}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#17352f;"></video>
+              <sc-if value="{{ camIdle }}" hint-placeholder-val="{{ true }}">
+                <div style="position:absolute; inset:-8%; background:repeating-linear-gradient(58deg,#1d423a 0 14px,#17352f 14px 28px); animation:stubDrift 9s ease-in-out infinite alternate;"></div>
+                <div style="position:absolute; left:22px; right:22px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center;">
+                  <div style="font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:11px; letter-spacing:.16em; color:#e8cc83; line-height:1.9;">{{ camTitle }}<br /><span style="color:rgba(238,227,195,.55);">{{ camDetail }}</span></div>
+                  <sc-if value="{{ camRetry }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ startCam }}" style="padding:12px 20px; border:0; border-radius:99px; background:#e8cc83; color:#17352f; font-size:12px; font-weight:800; letter-spacing:.12em; cursor:pointer; transition:background .2s ease, transform .12s ease;" style-hover="background:#f2dfa8" style-active="transform:scale(.94)">{{ camBtn }}</button>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <div style="position:absolute; left:14px; top:12px; width:22px; height:22px; border-left:2px solid rgba(238,227,195,.6); border-top:2px solid rgba(238,227,195,.6);"></div>
+              <div style="position:absolute; right:14px; top:12px; width:22px; height:22px; border-right:2px solid rgba(238,227,195,.6); border-top:2px solid rgba(238,227,195,.6);"></div>
+              <div style="position:absolute; left:14px; bottom:12px; width:22px; height:22px; border-left:2px solid rgba(238,227,195,.6); border-bottom:2px solid rgba(238,227,195,.6);"></div>
+              <div style="position:absolute; right:14px; bottom:12px; width:22px; height:22px; border-right:2px solid rgba(238,227,195,.6); border-bottom:2px solid rgba(238,227,195,.6);"></div>
+
+              <sc-if value="{{ flashOn }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute; inset:0; background:#fffdf7; pointer-events:none; animation:stubFlash 240ms ease-out forwards;"></div>
+              </sc-if>
+
+              <div style="position:absolute; left:44px; right:44px; top:11px; display:flex; justify-content:center; gap:6px;">
+                <div style="padding:5px 9px; background:#eee3c3; font-size:10px; font-weight:800; letter-spacing:.1em; color:#17352f;">{{ pendingLabel }}</div>
+                <div style="padding:5px 9px; background:#d96842; font-size:10px; font-weight:800; letter-spacing:.1em; color:#17352f;">OFFLINE OK</div>
+              </div>
+
+              <sc-if value="{{ camLive }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute; left:12px; right:12px; bottom:12px; padding:12px 14px; background:#f5edda; border:2px solid #17352f; display:flex; align-items:center; gap:11px; animation:stubTileIn .5s cubic-bezier(.2,.7,.2,1) .25s both;">
+                  <div style="flex:0 0 auto; width:9px; height:9px; border-radius:50%; background:#d96842; animation:stubPulse 2s ease-out infinite;"></div>
+                  <div style="flex:1 1 auto; min-width:0;">
+                    <div style="font-size:10px; font-weight:900; letter-spacing:.18em;">PRESENCE VERIFIED</div>
+                    <div style="margin-top:3px; font-family:Georgia,serif; font-size:16px;">{{ mintName }} card is waiting</div>
+                    <div style="margin-top:2px; font-size:11px; color:rgba(23,53,47,.6);">{{ mintMeta }}</div>
+                  </div>
+                  <button onClick="{{ openSpin }}" style="flex:0 0 auto; border:0; border-radius:99px; padding:11px 16px; background:#17352f; color:#f5edda; font-weight:800; font-size:13px; cursor:pointer; transition:transform .12s ease, background .18s ease;" style-hover="background:#0f2521" style-active="transform:scale(.94)">Reveal</button>
+                </div>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ hasShot }}" hint-placeholder-val="{{ false }}">
+              <div role="img" aria-label="Last capture" style="position:absolute; left:22px; bottom:22px; width:52px; height:52px; border:2px solid #17352f; box-shadow:4px 5px 0 #17352f; background-color:#17352f; background-image:{{ lastShotBg }}; background-size:cover; background-position:center; animation:stubLand .45s cubic-bezier(.2,.9,.3,1.2) both;"></div>
+            </sc-if>
+
+            <div style="position:absolute; left:0; right:0; bottom:10px; display:flex; flex-direction:column; align-items:center; gap:7px;">
+              <button onClick="{{ shoot }}" aria-label="Take photo" style="position:relative; width:70px; height:70px; border-radius:50%; border:4px solid #17352f; background:#f5edda; cursor:pointer; transition:transform .1s ease, background .18s ease;" style-hover="background:#e8cc83" style-active="transform:scale(.9)">
+                <sc-if value="{{ flashOn }}" hint-placeholder-val="{{ false }}">
+                  <span style="position:absolute; inset:-4px; border-radius:50%; border:3px solid #d96842; animation:stubRing .6s ease-out forwards;"></span>
+                </sc-if>
+              </button>
+              <div style="font-size:9.5px; font-weight:800; letter-spacing:.14em; color:rgba(23,53,47,.72);">{{ shotLabel }}</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ── LINEUP ── -->
+        <sc-if value="{{ isLineup }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1 1 auto; overflow-y:auto; padding:20px 26px 104px 16px; animation:stubScreenIn .42s cubic-bezier(.2,.7,.2,1) both;">
+            <div style="font-size:11px; font-weight:900; letter-spacing:.25em;">OUTSIDE LANDS · 2026</div>
+            <h1 style="margin:12px 0 0; font-family:Georgia,serif; font-weight:500; font-size:46px; line-height:.92; letter-spacing:-.05em;">On now.</h1>
+            <p style="margin:10px 0 20px; font-family:Georgia,serif; font-size:16px; line-height:1.4;">Sat Aug 8, 8:45 PM. Read from the cached grid, with the network off.</p>
+
+            <div style="display:flex; gap:0; margin-bottom:20px; border:2px solid #17352f;">
+              <sc-for list="{{ days }}" as="day" hint-placeholder-count="3">
+                <button onClick="{{ day.pick }}" style="flex:1 1 0; padding:12px 0; border:0; border-right:2px solid #17352f; background:{{ day.bg }}; color:{{ day.fg }}; font-size:11px; font-weight:900; letter-spacing:.16em; cursor:pointer; transition:background .2s ease;">{{ day.label }}</button>
+              </sc-for>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:20px;">
+              <sc-for list="{{ stageRows }}" as="row" hint-placeholder-count="5">
+                <div style="padding:16px; background:#f5edda; border:2px solid #17352f; box-shadow:7px 8px 0 #17352f; animation:stubTileIn .5s cubic-bezier(.2,.7,.2,1) both; animation-delay:{{ row.delay }}; transition:transform .18s ease, box-shadow .18s ease;" style-hover="transform:translate(-2px,-2px); box-shadow:9px 10px 0 #17352f">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                    <div style="font-size:10px; font-weight:900; letter-spacing:.18em;">{{ row.stage }}</div>
+                    <div style="display:flex; align-items:center; gap:6px; font-size:10px; font-weight:900; letter-spacing:.12em; color:{{ row.statusColor }};">
+                      <span style="display:block; width:7px; height:7px; border-radius:50%; background:{{ row.statusColor }};"></span>{{ row.status }}
+                    </div>
+                  </div>
+                  <div style="margin-top:10px; display:flex; align-items:baseline; gap:9px; flex-wrap:wrap;">
+                    <div style="font-family:Georgia,serif; font-weight:500; font-size:28px; line-height:1.04; letter-spacing:-.035em;">{{ row.now }}</div>
+                    <sc-if value="{{ row.headliner }}" hint-placeholder-val="{{ false }}">
+                      <span style="padding:3px 7px; background:#d96842; font-size:9px; font-weight:900; letter-spacing:.14em;">HEADLINER</span>
+                    </sc-if>
+                  </div>
+                  <div style="margin-top:5px; font-family:Georgia,serif; font-size:14px; color:rgba(23,53,47,.7);">{{ row.window }}</div>
+                  <div style="margin-top:12px; height:4px; background:rgba(23,53,47,.18);">
+                    <div style="height:100%; background:#d96842; width:{{ row.pct }}; transform-origin:left; animation:stubBar .9s cubic-bezier(.2,.7,.2,1) both; animation-delay:{{ row.delay }};"></div>
+                  </div>
+                  <div style="margin-top:12px; padding-top:12px; border-top:2px solid #17352f; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                    <div style="min-width:0;">
+                      <div style="font-size:9px; font-weight:900; letter-spacing:.16em; color:rgba(23,53,47,.5);">UP NEXT</div>
+                      <div style="margin-top:3px; font-family:Georgia,serif; font-size:15px;">{{ row.next }}</div>
+                    </div>
+                    <sc-if value="{{ row.spotify }}" hint-placeholder-val="{{ false }}">
+                      <a href="{{ row.spotifyUrl }}" target="_blank" rel="noreferrer" style="flex:0 0 auto; padding:9px 13px; border-radius:99px; background:#17352f; color:#f5edda; font-size:11px; font-weight:800; text-decoration:none;">▶ Listen</a>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <p style="margin:24px 2px 0; font-family:Georgia,serif; font-size:14px; line-height:1.5; color:rgba(23,53,47,.55);">We didn't build navigation. The festival app already does that.</p>
+          </div>
+        </sc-if>
+
+        <!-- ── SHELF ── -->
+        <sc-if value="{{ isShelf }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1 1 auto; overflow-y:auto; padding:20px 26px 104px 16px; animation:stubScreenIn .42s cubic-bezier(.2,.7,.2,1) both;">
+            <div style="font-size:11px; font-weight:900; letter-spacing:.25em;">OUTSIDE LANDS · 2026</div>
+            <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin:12px 0 20px;">
+              <h1 style="margin:0; font-family:Georgia,serif; font-weight:500; font-size:50px; line-height:.9; letter-spacing:-.05em;">Your shelf.</h1>
+              <div style="flex:0 0 auto; padding:7px 11px; background:#d96842; font-size:11px; font-weight:900; letter-spacing:.08em;">{{ shelfCount }}</div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 16px;">
+              <sc-for list="{{ shelfCards }}" as="card" hint-placeholder-count="6">
+                <button onClick="{{ card.open }}" style="display:block; padding:0; border:2px solid #17352f; background:transparent; box-shadow:6px 7px 0 #17352f; cursor:pointer; animation:stubTileIn .55s cubic-bezier(.2,.7,.2,1) both; animation-delay:{{ card.delay }}; transition:transform .2s cubic-bezier(.2,.7,.2,1), box-shadow .2s ease;" style-hover="transform:translate(-2px,-3px); box-shadow:9px 11px 0 #17352f" style-active="transform:translate(2px,2px); box-shadow:2px 3px 0 #17352f">
+                  <dc-import name="CardFace" variant="{{ card.frameVariant }}" artist-name="{{ card.artistName }}" stage-name="{{ card.stageName }}" date-label="{{ card.dateLabel }}" set-window-label="{{ card.setWindowLabel }}" dwell-label="{{ card.dwellLabel }}" rarity-score="{{ card.rarityScore }}" show-rarity="{{ showRarityMarks }}" hint-size="100%,220px"></dc-import>
+                </button>
+              </sc-for>
+            </div>
+
+            <div style="margin-top:26px; padding:14px 16px; background:#f5edda; border:2px solid #17352f; box-shadow:7px 8px 0 #17352f; display:flex; align-items:center; gap:12px; animation:stubTileIn .5s cubic-bezier(.2,.7,.2,1) .42s both;">
+              <div style="flex:0 0 auto; width:9px; height:9px; border-radius:50%; background:#d96842; animation:stubPulse 2s ease-out infinite;"></div>
+              <div style="flex:1 1 auto; min-width:0;">
+                <div style="font-size:10px; font-weight:900; letter-spacing:.18em;">CARD READY</div>
+                <div style="margin-top:3px; font-family:Georgia,serif; font-size:17px;">{{ mintName }} is waiting.</div>
+              </div>
+              <button onClick="{{ openSpin }}" style="flex:0 0 auto; border:0; border-radius:99px; padding:11px 16px; background:#17352f; color:#f5edda; font-weight:800; font-size:13px; cursor:pointer; transition:transform .12s ease, background .18s ease;" style-hover="background:#0f2521" style-active="transform:scale(.94)">Reveal</button>
+            </div>
+
+            <div style="margin-top:18px; padding:18px; border:2px dashed rgba(23,53,47,.4); text-align:center;">
+              <div style="font-family:Georgia,serif; font-size:17px;">Nothing else yet.</div>
+              <div style="margin-top:4px; font-size:12px; color:rgba(23,53,47,.55);">Go stand in front of something.</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ── WRAPPED ── -->
+        <sc-if value="{{ isWrapped }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1 1 auto; position:relative; min-height:0; animation:stubScreenIn .42s cubic-bezier(.2,.7,.2,1) both;">
+          <div ref="{{ deckRef }}" onScroll="{{ onDeckScroll }}" style="height:100%; overflow-y:auto; scroll-snap-type:y mandatory; scroll-behavior:smooth; overscroll-behavior-y:contain;">
+            <sc-for list="{{ wrappedCards }}" as="w" hint-placeholder-count="4">
+              <section style="position:relative; min-height:100%; scroll-snap-align:start; scroll-snap-stop:always; display:grid; grid-auto-rows:min-content; align-content:center; justify-items:center; gap:16px; padding:26px 26px 44px; background:{{ w.bg }}; color:#17352f;">
+
+                <sc-if value="{{ w.isOpening }}" hint-placeholder-val="{{ false }}">
+                  <div style="width:min(78%, 250px, calc((100svh - 250px) / 1.4)); min-width:150px; animation:stubTileIn .7s cubic-bezier(.2,.7,.2,1) both;">
+                    <div style="font-size:11px; font-weight:900; letter-spacing:.25em; text-align:center; margin-bottom:14px;">YOUR WEEKEND</div>
+                    <div style="border:2px solid #17352f; box-shadow:8px 9px 0 #17352f;">
+                      <dc-import name="CardFace" variant="fog_layer" artist-name="Thundercat" stage-name="Sutro" date-label="Sun Aug 9" set-window-label="7:15 – 8:30 PM" dwell-label="71 min" rarity-score="{{ ninetyOne }}" hint-size="100%,300px"></dc-import>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ w.isStat }}" hint-placeholder-val="{{ true }}">
+                  <div style="width:100%; max-width:320px; padding:20px 20px 24px; background:#f5edda; border:2px solid #17352f; box-shadow:8px 9px 0 #17352f; animation:stubTileIn .6s cubic-bezier(.2,.7,.2,1) both;">
+                    <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
+                      <span style="font-size:11px; font-weight:900; letter-spacing:.22em;">{{ w.kicker }}</span>
+                      <span style="font-size:9.5px; font-weight:800; letter-spacing:.12em; color:rgba(23,53,47,.5);">{{ w.source }}</span>
+                    </div>
+
+                    <div style="display:flex; align-items:baseline; gap:8px; margin:20px 0 8px;">
+                      <span style="font-family:Georgia,serif; font-weight:500; font-size:76px; line-height:.8; letter-spacing:-.06em;">{{ w.figure }}</span>
+                      <span style="font-size:12px; font-weight:900; letter-spacing:.14em;">{{ w.unit }}</span>
+                    </div>
+
+                    <h2 style="margin:0 0 18px; font-family:Georgia,serif; font-weight:500; font-size:23px; line-height:1.15; letter-spacing:-.03em;">{{ w.line }}</h2>
+
+                    <sc-if value="{{ w.hasRows }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; flex-direction:column; gap:9px; margin-bottom:18px;">
+                        <sc-for list="{{ w.rows }}" as="r" hint-placeholder-count="4">
+                          <div>
+                            <div style="display:flex; justify-content:space-between; gap:10px; font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase;">
+                              <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ r.label }}</span>
+                              <span style="color:rgba(23,53,47,.6);">{{ r.value }}</span>
+                            </div>
+                            <div style="margin-top:4px; height:4px; background:rgba(23,53,47,.18);">
+                              <div style="height:100%; background:#d96842; width:{{ r.pct }}; transform-origin:left; animation:stubBar .8s cubic-bezier(.2,.7,.2,1) both; animation-delay:{{ r.delay }};"></div>
+                            </div>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+
+                    <div style="width:64px; height:3px; background:#17352f;"></div>
+                    <p style="margin:12px 0 0; font-family:Georgia,serif; font-size:14px; line-height:1.45; color:rgba(23,53,47,.72);">{{ w.caption }}</p>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ w.isStrip }}" hint-placeholder-val="{{ false }}">
+                  <div style="width:100%; text-align:center; animation:stubTileIn .6s cubic-bezier(.2,.7,.2,1) both;">
+                    <div style="font-size:11px; font-weight:900; letter-spacing:.24em;">THREE DAYS · ONE STRIP</div>
+                    <div style="margin:18px auto; width:min(64%,196px); padding:14px 12px; background:#17352f; border:2px solid #17352f; box-shadow:8px 9px 0 #b8a672;">
+                      <div style="font-family:Georgia,serif; font-size:15px; color:#e8cc83; text-align:left;">YOUR WEEKEND</div>
+                      <div style="margin-top:2px; font-size:7px; font-weight:800; letter-spacing:.2em; color:rgba(238,227,195,.6); text-align:left;">OUTSIDE LANDS · 2026</div>
+                      <div style="margin-top:11px; display:grid; grid-template-columns:repeat(3,1fr); gap:5px;">
+                        <sc-for list="{{ stripCells }}" as="cell" hint-placeholder-count="12">
+                          <div style="aspect-ratio:5/7; background:{{ cell.bg }}; animation:stubFade .5s ease both; animation-delay:{{ cell.delay }};"></div>
+                        </sc-for>
+                      </div>
+                      <div style="margin-top:11px; font-family:Georgia,serif; font-size:8px; color:#e8cc83; text-align:left;">THREE DAYS. TWELVE SETS.</div>
+                    </div>
+                    <button style="border:0; border-radius:99px; padding:14px 22px; background:#17352f; color:#f5edda; font-weight:800; font-size:13px; cursor:pointer; transition:transform .12s ease;" style-active="transform:scale(.94)">Share or download</button>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ w.isLast }}" hint-placeholder-val="{{ false }}">
+                  <div style="width:100%; max-width:320px; animation:stubTileIn .6s cubic-bezier(.2,.7,.2,1) both;">
+                    <p style="margin:0; font-family:Georgia,serif; font-size:19px; line-height:1.4;">You spent the most time with Thundercat.</p>
+                    <h2 style="margin:44px 0 40px; font-family:Georgia,serif; font-weight:500; font-size:46px; line-height:.96; letter-spacing:-.05em;">Fox Theater<br /><span style="font-size:.42em; letter-spacing:-.02em;">Oakland · Nov 17</span></h2>
+                    <a href="https://open.spotify.com/artist/4frXpPxQQZwbCu3eTGnZEw" target="_blank" rel="noreferrer" style="display:inline-block; border-radius:99px; padding:14px 22px; background:#17352f; color:#f5edda; font-weight:800; font-size:13px; text-decoration:none;">Hear them first ↗</a>
+                  </div>
+                </sc-if>
+
+                <div style="text-align:center; font-size:9px; font-weight:800; letter-spacing:.28em; color:rgba(23,53,47,.72);">{{ w.hint }}</div>
+              </section>
+            </sc-for>
+          </div>
+
+          <div style="position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; gap:12px; padding:10px 14px 12px; pointer-events:none;">
+            <button onClick="{{ deckPrev }}" aria-label="Previous panel" style="pointer-events:auto; width:34px; height:34px; border:2px solid #17352f; border-radius:50%; background:#f5edda; color:#17352f; font-size:14px; font-weight:900; line-height:1; cursor:pointer; transition:transform .12s ease, background .2s ease;" style-hover="background:#e8cc83" style-active="transform:scale(.9)">↑</button>
+            <div style="flex:1 1 auto; display:flex; align-items:center; justify-content:center; gap:5px;">
+              <sc-for list="{{ deckDots }}" as="dot" hint-placeholder-count="11">
+                <button onClick="{{ dot.pick }}" aria-label="Go to panel" style="pointer-events:auto; width:{{ dot.w }}; height:5px; padding:0; border:0; background:{{ dot.bg }}; cursor:pointer; transition:width .28s cubic-bezier(.2,.7,.2,1), background .2s ease;"></button>
+              </sc-for>
+            </div>
+            <button onClick="{{ deckNext }}" aria-label="Next panel" style="pointer-events:auto; width:34px; height:34px; border:2px solid #17352f; border-radius:50%; background:#17352f; color:#f5edda; font-size:14px; font-weight:900; line-height:1; cursor:pointer; transition:transform .12s ease, background .2s ease;" style-hover="background:#0f2521" style-active="transform:scale(.9)">↓</button>
+          </div>
+          </div>
+        </sc-if>
+
+        <!-- bottom tabs -->
+        <div style="flex:0 0 auto; position:relative; z-index:5; display:grid; grid-template-columns:repeat(4,1fr); background:#eee3c3; border-top:2px solid #17352f;">
+          <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="4">
+            <button onClick="{{ tab.pick }}" style="display:flex; flex-direction:column; align-items:center; gap:6px; padding:11px 0 14px; border:0; border-right:2px solid #17352f; background:{{ tab.bg }}; cursor:pointer; transition:background .2s ease, transform .12s ease;" style-active="transform:translateY(1px)">
+              <div style="width:22px; height:22px; display:grid; place-items:center;">
+                <div style="width:{{ tab.iconW }}; height:{{ tab.iconH }}; border-radius:{{ tab.iconR }}; border:2px solid {{ tab.color }}; background:{{ tab.iconFill }}; transition:all .22s cubic-bezier(.2,.7,.2,1);"></div>
+              </div>
+              <span style="font-size:9.5px; font-weight:900; letter-spacing:.12em; color:{{ tab.color }}; transition:color .2s ease;">{{ tab.label }}</span>
+            </button>
+          </sc-for>
+        </div>
+
+        <!-- drawer -->
+        <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; inset:0; z-index:40;">
+            <div onClick="{{ closeDrawer }}" style="position:absolute; inset:0; background:rgba(23,53,47,.55); animation:stubFade .28s ease both;"></div>
+            <div style="position:absolute; left:0; top:0; bottom:0; width:76%; max-width:292px; padding:24px 22px; background:#f5edda; border-right:3px solid #17352f; display:flex; flex-direction:column; animation:stubDrawerIn .34s cubic-bezier(.2,.85,.25,1) both;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:30px;">
+                <div style="width:9px; height:22px; background:#d96842;"></div>
+                <div style="font-family:Georgia,serif; font-weight:700; font-size:21px; letter-spacing:.24em;">STUB</div>
+              </div>
+              <div style="display:flex; flex-direction:column;">
+                <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+                  <button onClick="{{ item.pick }}" style="display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; padding:15px 4px; border:0; border-bottom:2px solid #17352f; background:transparent; text-align:left; cursor:pointer; animation:stubNavIn .4s cubic-bezier(.2,.7,.2,1) both; animation-delay:{{ item.delay }}; transition:padding-left .2s ease;" style-hover="padding-left:12px">
+                    <span style="font-family:Georgia,serif; font-size:21px; letter-spacing:-.02em; color:{{ item.color }};">{{ item.label }}</span>
+                    <span style="font-size:9px; font-weight:900; letter-spacing:.14em; color:{{ item.tagColor }};">{{ item.tag }}</span>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="margin-top:auto; padding-top:20px;">
+                <div style="display:flex; align-items:center; gap:9px; padding:12px 14px; background:#d96842; border:2px solid #17352f;">
+                  <span style="flex:0 0 auto; width:7px; height:7px; border-radius:50%; background:#17352f; animation:stubPulse 2.2s ease-out infinite;"></span>
+                  <span style="font-size:11px; font-weight:700; line-height:1.35;">{{ pendingLabel }} · syncs when signal returns</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- card detail -->
+        <sc-if value="{{ detailOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; inset:0; z-index:45; display:grid; place-items:center; padding:26px; background:rgba(23,53,47,.8); animation:stubFade .26s ease both;" onClick="{{ closeDetail }}">
+            <div style="width:min(76%,250px); perspective:1300px;">
+              <div onClick="{{ toggleFlip }}" style="position:relative; width:100%; aspect-ratio:5/7; transform-style:preserve-3d; cursor:pointer; transition:transform .58s cubic-bezier(.2,.7,.2,1); transform:{{ flipTransform }};">
+                <div style="position:absolute; inset:0; backface-visibility:hidden; border:2px solid #17352f;">
+                  <dc-import name="CardFace" variant="{{ detail.frameVariant }}" artist-name="{{ detail.artistName }}" stage-name="{{ detail.stageName }}" date-label="{{ detail.dateLabel }}" set-window-label="{{ detail.setWindowLabel }}" dwell-label="{{ detail.dwellLabel }}" rarity-score="{{ detail.rarityScore }}" hint-size="100%,340px"></dc-import>
+                </div>
+                <div style="position:absolute; inset:0; backface-visibility:hidden; transform:rotateY(180deg); padding:24px 20px; display:flex; flex-direction:column; background:#f5edda; border:2px solid #17352f; box-shadow:inset 0 0 0 8px #eee3c3, inset 0 0 0 10px #17352f;">
+                  <div style="font-size:10px; font-weight:900; letter-spacing:.2em;">YOU WERE THERE</div>
+                  <h2 style="margin:6px 0 16px; font-family:Georgia,serif; font-weight:500; font-size:28px; line-height:1; letter-spacing:-.04em;">{{ detail.artistName }}</h2>
+                  <sc-for list="{{ detailRows }}" as="r" hint-placeholder-count="5">
+                    <div style="display:flex; justify-content:space-between; gap:14px; padding:7px 0; border-bottom:1px solid rgba(23,53,47,.28); font-size:12px;">
+                      <span style="font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:rgba(23,53,47,.6);">{{ r.k }}</span>
+                      <span style="font-family:Georgia,serif; font-size:14px; text-align:right;">{{ r.v }}</span>
+                    </div>
+                  </sc-for>
+                  <p style="margin-top:auto; font-size:11px; line-height:1.45; color:rgba(23,53,47,.62);">Rarity comes from attendance facts, never an assigned tier.</p>
+                </div>
+              </div>
+              <div style="margin-top:12px; text-align:center; font-size:10px; font-weight:800; letter-spacing:.16em; color:#eee3c3;">TAP THE CARD TO FLIP</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- spin sheet -->
+        <sc-if value="{{ spinOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; inset:0; z-index:50; display:flex; align-items:flex-end; background:rgba(23,53,47,.6); animation:stubFade .26s ease both;" onClick="{{ closeSpin }}">
+            <div onClick="{{ stop }}" style="width:100%; max-height:94%; overflow-y:auto; padding:16px 24px 30px; background:#f5edda; border-top:3px solid #17352f; animation:stubSheetUp .42s cubic-bezier(.2,.85,.25,1) both;">
+              <div style="width:44px; height:4px; margin:0 auto 16px; background:#17352f;"></div>
+
+              <sc-if value="{{ spinDone }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+                  <div style="font-size:11px; font-weight:900; letter-spacing:.22em;">IT'S YOURS</div>
+                  <h2 style="margin:10px 0 0; font-family:Georgia,serif; font-weight:500; font-size:38px; line-height:1; letter-spacing:-.05em;">{{ mintName }}</h2>
+                  <div style="width:min(52%,180px); margin:18px 0 12px; border:2px solid #17352f; box-shadow:8px 9px 0 #17352f; animation:stubLand .45s cubic-bezier(.2,.9,.3,1.2) both;">
+                    <dc-import name="CardFace" variant="disco_bison" artist-name="{{ mintName }}" stage-name="Duboce Triangle" date-label="Sat Aug 8" set-window-label="7:10 – 8:05 PM" dwell-label="47 min" rarity-score="{{ eightyFour }}" hint-size="100%,250px"></dc-import>
+                  </div>
+                  <p style="margin:0 0 16px; max-width:280px; font-family:Georgia,serif; font-size:16px; line-height:1.45;">One set. Your photo. Your card.</p>
+                  <button onClick="{{ goShelf }}" style="min-width:210px; border:0; border-radius:99px; padding:14px 20px; background:#17352f; color:#f5edda; font-weight:800; font-size:14px; cursor:pointer; transition:transform .12s ease;" style-active="transform:scale(.95)">See it on my shelf</button>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ spinReady }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+                  <div style="font-size:11px; font-weight:900; letter-spacing:.22em;">PRESENCE VERIFIED</div>
+                  <h2 style="margin:10px 0 0; max-width:300px; font-family:Georgia,serif; font-weight:500; font-size:31px; line-height:1.06; letter-spacing:-.04em;">Your {{ mintName }} card is ready.</h2>
+                  <p style="margin:10px 0 0; max-width:290px; font-family:Georgia,serif; font-size:16px; line-height:1.4; color:rgba(23,53,47,.75);">The card is already earned. The reveal only shows which frame you got.</p>
+                  <div style="width:148px; aspect-ratio:5/7; margin:20px 0; padding:16px; border:2px solid #17352f; box-shadow:8px 9px 0 #17352f; display:grid; place-items:end center; background:#e8cc83; font-family:Georgia,serif; font-weight:500; font-size:18px; animation:{{ spinAnim }};">{{ spinLabel }}</div>
+                  <button onClick="{{ doSpin }}" style="min-width:210px; border:0; border-radius:99px; padding:14px 20px; background:#17352f; color:#f5edda; font-weight:800; font-size:14px; cursor:pointer; transition:transform .12s ease;" style-active="transform:scale(.95)">{{ spinBtn }}</button>
+                  <button onClick="{{ closeSpin }}" style="margin-top:10px; padding:10px; border:0; background:transparent; color:rgba(23,53,47,.6); font-size:13px; cursor:pointer;">Later — it will wait</button>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+    <div style="margin-top:16px; text-align:center; font-size:10px; font-weight:800; letter-spacing:.2em; color:rgba(23,53,47,.72);">FAN · MOBILE WEB · OFFLINE-FIRST</div>
+  </div>
+
+  <!-- ══════════ DESKTOP CONSOLE ══════════ -->
+  <div style="flex:1 1 380px; max-width:760px; min-width:min(100%,320px);">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+      <sc-for list="{{ consoles }}" as="c" hint-placeholder-count="2">
+        <button onClick="{{ c.pick }}" style="padding:11px 18px; border:2px solid #17352f; border-radius:99px; background:{{ c.bg }}; color:{{ c.fg }}; font-size:11px; font-weight:900; letter-spacing:.14em; cursor:pointer; transition:all .2s ease;" style-active="transform:scale(.96)">{{ c.label }}</button>
+      </sc-for>
+      <div style="margin-left:auto; font-size:10px; font-weight:800; letter-spacing:.2em; color:rgba(23,53,47,.72);">DESKTOP CONSOLES</div>
+    </div>
+
+    <sc-if value="{{ isArtist }}" hint-placeholder-val="{{ true }}">
+      <div style="overflow:hidden; background:#eee3c3; border:2px solid #17352f; box-shadow:14px 16px 0 #b8a672; animation:stubScreenIn .42s cubic-bezier(.2,.7,.2,1) both;">
+        <div style="padding:clamp(24px,4vw,44px); background:linear-gradient(130deg, transparent 68%, #db6a43 68%);">
+          <div style="font-size:11px; font-weight:900; letter-spacing:.25em;">ARTIST DESK</div>
+          <h1 style="margin:16px 0; font-family:Georgia,serif; font-weight:500; font-size:clamp(38px,5.4vw,62px); line-height:.92; letter-spacing:-.05em;">A task in thirty seconds.</h1>
+          <p style="margin:0 0 32px; font-family:Georgia,serif; font-size:18px; line-height:1.4; max-width:460px;">You provide the intent. Existing cards provide the proof.</p>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:20px; padding:clamp(20px,3vw,36px); border:2px solid #17352f; background:#f5edda; box-shadow:13px 15px 0 #17352f;">
+            <label style="display:grid; gap:8px; font-size:11px; text-transform:uppercase; letter-spacing:.13em; font-weight:800;">Set
+              <select value="{{ artistSet }}" onChange="{{ setArtistSet }}" style="width:100%; padding:13px; border:1px solid #6b796d; border-radius:0; background:transparent; color:inherit; font-family:Georgia,serif; font-size:16px;">
+                <sc-for list="{{ artistSets }}" as="s" hint-placeholder-count="3"><option value="{{ s.id }}">{{ s.artistName }}</option></sc-for>
+              </select>
+            </label>
+            <label style="display:grid; gap:8px; font-size:11px; text-transform:uppercase; letter-spacing:.13em; font-weight:800;">Presence task
+              <select value="{{ taskType }}" onChange="{{ setTaskType }}" style="width:100%; padding:13px; border:1px solid #6b796d; border-radius:0; background:transparent; color:inherit; font-family:Georgia,serif; font-size:16px;">
+                <sc-for list="{{ taskOptions }}" as="t" hint-placeholder-count="5"><option value="{{ t.value }}">{{ t.label }}</option></sc-for>
+              </select>
+            </label>
+            <label style="grid-column:1/-1; display:grid; gap:8px; font-size:11px; text-transform:uppercase; letter-spacing:.13em; font-weight:800;">What do you want fans to do?
+              <textarea maxLength="180" value="{{ intent }}" onChange="{{ setIntent }}" style="width:100%; min-height:100px; padding:13px; border:1px solid #6b796d; background:transparent; color:inherit; font-family:Georgia,serif; font-size:16px; line-height:1.4; resize:vertical;"></textarea>
+            </label>
+            <label style="display:grid; gap:8px; font-size:11px; text-transform:uppercase; letter-spacing:.13em; font-weight:800;">Reward
+              <select value="{{ reward }}" onChange="{{ setReward }}" style="width:100%; padding:13px; border:1px solid #6b796d; border-radius:0; background:transparent; color:inherit; font-family:Georgia,serif; font-size:16px;">
+                <sc-for list="{{ rewards }}" as="r" hint-placeholder-count="4"><option value="{{ r.value }}">{{ r.label }}</option></sc-for>
+              </select>
+            </label>
+            <div style="display:flex; align-items:flex-end;">
+              <button onClick="{{ writeTask }}" style="border:0; border-radius:99px; background:#17352f; color:#f5edda; padding:14px 24px; font-weight:800; font-size:14px; cursor:pointer; transition:transform .12s ease, background .2s ease;" style-hover="background:#0f2521" style-active="transform:scale(.95)">{{ writeLabel }}</button>
+            </div>
+          </div>
+
+          <sc-if value="{{ hasCopy }}" hint-placeholder-val="{{ false }}">
+            <div style="margin:44px 0 0; padding:clamp(20px,3vw,40px); background:#d96842; color:#182f2a; border:2px solid #17352f; box-shadow:13px 15px 0 #17352f; animation:stubTileIn .5s cubic-bezier(.2,.7,.2,1) both;">
+              <div style="font-size:11px; font-weight:900; letter-spacing:.25em;">FAN-FACING PREVIEW</div>
+              <h2 style="margin:14px 0; font-family:Georgia,serif; font-weight:500; font-size:clamp(26px,3.4vw,44px); line-height:1.05; letter-spacing:-.04em;">{{ copyDesc }}</h2>
+              <p style="margin:0; font-family:Georgia,serif; font-size:18px; line-height:1.4;">{{ copyReward }}</p>
+              <div style="margin-top:22px; font-size:12px; font-weight:700; opacity:.75;">Completion is verified from minted cards. Fans cannot self-report it.</div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLab }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:clamp(24px,4vw,44px); background:#eee3c3; border:2px solid #17352f; box-shadow:14px 16px 0 #b8a672; animation:stubScreenIn .42s cubic-bezier(.2,.7,.2,1) both;">
+        <div style="font-size:11px; font-weight:900; letter-spacing:.25em;">RENDER LAB / OUTSIDE LANDS 2026</div>
+        <h1 style="margin:16px 0; font-family:Georgia,serif; font-weight:500; font-size:clamp(34px,4.8vw,56px); line-height:.94; letter-spacing:-.05em;">Five frames. One slot contract.</h1>
+        <p style="margin:0 0 30px; max-width:520px; font-family:Georgia,serif; font-size:18px; line-height:1.4;">Stress-test long names and the strict rarity threshold without waiting on upstream data.</p>
+
+        <div style="display:flex; flex-wrap:wrap; gap:20px; padding:clamp(20px,3vw,32px); margin-bottom:34px; background:#f5edda; border:2px solid #17352f; box-shadow:13px 15px 0 #17352f;">
+          <label style="display:grid; gap:8px; flex:1 1 240px; font-size:11px; font-weight:800; letter-spacing:.13em; text-transform:uppercase;">Artist name
+            <input value="{{ labName }}" onChange="{{ setLabName }}" style="padding:13px; border:1px solid #6b796d; border-radius:0; background:transparent; color:inherit; font-family:Georgia,serif; font-size:16px;" />
+          </label>
+          <label style="display:grid; gap:8px; flex:1 1 200px; font-size:11px; font-weight:800; letter-spacing:.13em; text-transform:uppercase;">Rarity {{ labRarityLabel }}
+            <input type="range" min="0" max="1" step="0.05" value="{{ labRarity }}" onChange="{{ setLabRarity }}" style="accent-color:#d96842; margin-top:12px;" />
+          </label>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:26px 22px;">
+          <sc-for list="{{ labFrames }}" as="f" hint-placeholder-count="5">
+            <div style="animation:stubTileIn .5s cubic-bezier(.2,.7,.2,1) both; animation-delay:{{ f.delay }};">
+              <div style="border:2px solid #17352f; box-shadow:8px 9px 0 #17352f; transition:transform .2s cubic-bezier(.2,.7,.2,1), box-shadow .2s ease;" style-hover="transform:translate(-3px,-3px); box-shadow:11px 12px 0 #17352f">
+                <dc-import name="CardFace" variant="{{ f.variant }}" photo="{{ labPhoto }}" artist-name="{{ labName }}" stage-name="Lands End" date-label="Fri Aug 7" set-window-label="7:40 – 8:55 PM" dwell-label="47 min" rarity-score="{{ labRarity }}" hint-size="100%,230px"></dc-import>
+              </div>
+              <div style="padding-top:12px; font-size:11px; font-weight:800; letter-spacing:.14em; text-transform:uppercase;">{{ f.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showRarityMarks&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Cards&quot;},&quot;denseShelf&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Cards&quot;}}">
+const TZ = 'America/Los_Angeles';
+const DEMO_TS = 1786247100000; // Sat Aug 8 2026, 8:45 PM PDT
+
+const STAGES = [
+  { id:'lands-end', name:'Lands End' },
+  { id:'twin-peaks', name:'Twin Peaks' },
+  { id:'sutro', name:'Sutro' },
+  { id:'soma', name:'SOMA' },
+  { id:'duboce-triangle', name:'Duboce Triangle' },
+];
+
+// verbatim from data/grid.sample.json (path/3-jambase-grid)
+const SETS = [
+  { id:'set-fri-le-wetleg', stageId:'lands-end', artistName:'Wet Leg', startTime:1786143300000, endTime:1786146300000, isHeadliner:false, spotifyId:null },
+  { id:'set-fri-du-sierra', stageId:'duboce-triangle', artistName:'Sierra Ferrell', startTime:1786143600000, endTime:1786147200000, isHeadliner:false, spotifyId:null },
+  { id:'set-fri-tp-geese', stageId:'twin-peaks', artistName:'Geese', startTime:1786145400000, endTime:1786149000000, isHeadliner:false, spotifyId:null },
+  { id:'set-fri-le-glorilla', stageId:'lands-end', artistName:'GloRilla', startTime:1786148100000, endTime:1786151700000, isHeadliner:false, spotifyId:null },
+  { id:'set-fri-su-ethelcain', stageId:'sutro', artistName:'Ethel Cain', startTime:1786148100000, endTime:1786151700000, isHeadliner:false, spotifyId:null },
+  { id:'set-fri-so-barry', stageId:'soma', artistName:"Barry Can't Swim", startTime:1786149000000, endTime:1786153500000, isHeadliner:false, spotifyId:null },
+  { id:'set-fri-du-mariah', stageId:'duboce-triangle', artistName:'Mariah the Scientist', startTime:1786152600000, endTime:1786157100000, isHeadliner:false, spotifyId:null },
+  { id:'set-fri-le-clipse', stageId:'lands-end', artistName:'Clipse', startTime:1786153500000, endTime:1786156500000, isHeadliner:false, spotifyId:null },
+  { id:'set-fri-tp-labrinth', stageId:'twin-peaks', artistName:'Labrinth', startTime:1786153500000, endTime:1786157700000, isHeadliner:false, spotifyId:null },
+  { id:'set-fri-su-turnstile', stageId:'sutro', artistName:'Turnstile', startTime:1786155600000, endTime:1786159200000, isHeadliner:false, spotifyId:null },
+  { id:'set-fri-tp-griz', stageId:'twin-peaks', artistName:'GRiZTRONICS', startTime:1786159500000, endTime:1786164900000, isHeadliner:true, spotifyId:null },
+  { id:'set-fri-le-charli', stageId:'lands-end', artistName:'Charli xcx', startTime:1786160400000, endTime:1786165200000, isHeadliner:true, spotifyId:'0HNqrcl3vgc1U7U1SNtsvB' },
+  { id:'set-fri-su-modestmouse', stageId:'sutro', artistName:'Modest Mouse', startTime:1786161000000, endTime:1786165200000, isHeadliner:false, spotifyId:null },
+  { id:'set-sat-tp-tinashe', stageId:'twin-peaks', artistName:'Tinashe', startTime:1786231800000, endTime:1786235400000, isHeadliner:false, spotifyId:null },
+  { id:'set-sat-le-lucy', stageId:'lands-end', artistName:'Lucy Dacus', startTime:1786233600000, endTime:1786237200000, isHeadliner:false, spotifyId:null },
+  { id:'set-sat-tp-dijon', stageId:'twin-peaks', artistName:'Dijon', startTime:1786239000000, endTime:1786242000000, isHeadliner:false, spotifyId:null },
+  { id:'set-sat-su-temper', stageId:'sutro', artistName:'The Temper Trap', startTime:1786239000000, endTime:1786242600000, isHeadliner:false, spotifyId:null },
+  { id:'set-sat-le-djo', stageId:'lands-end', artistName:'Djo', startTime:1786240200000, endTime:1786243800000, isHeadliner:false, spotifyId:null },
+  { id:'set-sat-so-lane8', stageId:'soma', artistName:'Lane 8', startTime:1786244400000, endTime:1786249800000, isHeadliner:false, spotifyId:null },
+  { id:'set-sat-tp-thexx', stageId:'twin-peaks', artistName:'The xx', startTime:1786245000000, endTime:1786250400000, isHeadliner:true, spotifyId:null },
+  { id:'set-sat-le-strokes', stageId:'lands-end', artistName:'The Strokes', startTime:1786246500000, endTime:1786251600000, isHeadliner:true, spotifyId:'0epOFNiUfyON9EYx7Tpr6V' },
+  { id:'set-sat-su-pinkpantheress', stageId:'sutro', artistName:'PinkPantheress', startTime:1786247100000, endTime:1786251600000, isHeadliner:false, spotifyId:null },
+  { id:'set-sun-le-empire', stageId:'lands-end', artistName:'Empire of the Sun', startTime:1786326300000, endTime:1786329900000, isHeadliner:false, spotifyId:null },
+  { id:'set-sun-so-discolines', stageId:'soma', artistName:'Disco Lines', startTime:1786329000000, endTime:1786334400000, isHeadliner:false, spotifyId:null },
+  { id:'set-sun-tp-deathcab', stageId:'twin-peaks', artistName:'Death Cab for Cutie', startTime:1786331400000, endTime:1786336800000, isHeadliner:true, spotifyId:null },
+  { id:'set-sun-le-rufus', stageId:'lands-end', artistName:'RÜFÜS DU SOL', startTime:1786332300000, endTime:1786338000000, isHeadliner:true, spotifyId:'5Pb27ujIyYb33zBqVysBkj' },
+  { id:'set-sun-su-babykeem', stageId:'sutro', artistName:'Baby Keem', startTime:1786333200000, endTime:1786338000000, isHeadliner:false, spotifyId:null },
+];
+
+const DAY_TS = { Fri: 1786160000000, Sat: DEMO_TS, Sun: 1786334000000 };
+
+const timeFmt = new Intl.DateTimeFormat('en-US', { timeZone:TZ, hour:'numeric', minute:'2-digit' });
+const dayFmt = new Intl.DateTimeFormat('en-US', { timeZone:TZ, weekday:'short', month:'short', day:'numeric' });
+const fmtWindow = (s) => `${timeFmt.format(s.startTime)} – ${timeFmt.format(s.endTime)}`;
+
+// ported verbatim from lib/mint/variants.ts (path/6-mint-spin-shelf)
+const BASE_WEIGHTS = { ranger_badge:0.45, trail_marker:0.3, fog_layer:0.2, disco_bison:0.05 };
+function hashToUnit(seed) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < seed.length; i++) { h ^= seed.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return (h >>> 0) / 0x100000000;
+}
+const HOUR_FMT = new Intl.DateTimeFormat('en-US', { hour:'2-digit', hourCycle:'h23', timeZone:TZ });
+function pickFrameVariant(set, seed) {
+  const w = { ...BASE_WEIGHTS };
+  if (set.isHeadliner) w.ranger_badge *= 2;
+  if (Number(HOUR_FMT.format(set.startTime)) >= 19) w.fog_layer *= 2.5;
+  const roll = hashToUnit(seed);
+  if (roll < BASE_WEIGHTS.disco_bison) return 'disco_bison';
+  const entries = Object.entries(w).filter(([v]) => v !== 'disco_bison');
+  const total = entries.reduce((s, [, x]) => s + x, 0);
+  let cursor = ((roll - BASE_WEIGHTS.disco_bison) / (1 - BASE_WEIGHTS.disco_bison)) * total;
+  for (const [v, x] of entries) { cursor -= x; if (cursor < 0) return v; }
+  return 'ranger_badge';
+}
+
+const SHELF_SEEDS = [
+  ['set-sat-le-strokes', 2820, 0.78], ['set-sat-tp-thexx', 3780, 0.46],
+  ['set-fri-le-charli', 4140, 0.84], ['set-fri-su-turnstile', 1980, 0.72],
+  ['set-sat-so-lane8', 3300, 0.38], ['set-fri-du-sierra', 1260, 0.91],
+];
+
+// One panel per field in DerivedSignals (docs/CONTRACTS.md §4). Copy keeps the
+// path-8 narrative constraints: descriptive, second person, never evaluative,
+// never a number the model computed.
+const WRAPPED_PANELS = [
+  {
+    kicker:'FIELD NOTE 01', source:'concurrentSetsSkipped',
+    figure:'3', unit:'SETS',
+    line:'You chose one stage while three others kept playing.',
+    caption:'Opportunity cost. Every set you attended cost you the ones running against it.',
+    rows:[
+      { label:'The xx · Twin Peaks', value:'skipped', pct:'100%' },
+      { label:'PinkPantheress · Sutro', value:'skipped', pct:'100%' },
+      { label:'Lane 8 · SOMA', value:'skipped', pct:'100%' },
+    ],
+  },
+  {
+    kicker:'FIELD NOTE 02', source:'longestRun',
+    figure:'47', unit:'MINUTES',
+    line:'You stayed for forty-seven minutes.',
+    caption:'Your longest unbroken run. Gaps over five minutes closed the count.',
+  },
+  {
+    kicker:'FIELD NOTE 03', source:'photos',
+    figure:'43', unit:'FRAMES',
+    line:'You shot forty-three photos of your friends.',
+    caption:'Vision classified the subject. Only nine of them faced a stage.',
+    rows:[
+      { label:'People', value:'31', pct:'72%' },
+      { label:'Stage', value:'9', pct:'21%' },
+      { label:'Food', value:'2', pct:'5%' },
+      { label:'Scenery', value:'1', pct:'2%' },
+    ],
+  },
+  {
+    kicker:'FIELD NOTE 04', source:'fullSetCount',
+    figure:'4', unit:'FULL SETS',
+    line:'You stayed through four sets end to end.',
+    caption:'Counted at 80% of set duration or more.',
+    rows:[
+      { label:'Amaarae', value:'97%', pct:'97%' },
+      { label:'Parcels', value:'91%', pct:'91%' },
+      { label:'Turnstile', value:'88%', pct:'88%' },
+      { label:'Charli xcx', value:'84%', pct:'84%' },
+      { label:'The Strokes', value:'61%', pct:'61%' },
+    ],
+  },
+  {
+    kicker:'FIELD NOTE 05', source:'stageDiversity',
+    figure:'5', unit:'STAGES',
+    line:'Your weekend crossed every stage in the park.',
+    caption:'Resolved by point-in-polygon. Duboce Triangle carries the widest buffer.',
+    rows:[
+      { label:'Lands End', value:'3h 10m', pct:'100%' },
+      { label:'Twin Peaks', value:'2h 05m', pct:'66%' },
+      { label:'Sutro', value:'1h 48m', pct:'57%' },
+      { label:'SOMA', value:'1h 02m', pct:'33%' },
+      { label:'Duboce Triangle', value:'46m', pct:'24%' },
+    ],
+  },
+  {
+    kicker:'FIELD NOTE 06', source:'discoveryRate',
+    figure:'4', unit:'NEW',
+    line:'You found four artists you had not saved before.',
+    caption:'No prior card, no prior save. The festival introduced you.',
+    rows:[
+      { label:'Amaarae', value:'47m', pct:'100%' },
+      { label:'Barry Can\u2019t Swim', value:'38m', pct:'81%' },
+      { label:'Sierra Ferrell', value:'21m', pct:'45%' },
+      { label:'Geese', value:'14m', pct:'30%' },
+    ],
+  },
+  {
+    kicker:'FIELD NOTE 07', source:'nightRatio',
+    figure:'68', unit:'PERCENT',
+    line:'Most of your weekend happened after dark.',
+    caption:'Share of observed time after 7PM local. The fog frames are not decorative.',
+    rows:[
+      { label:'After 7PM', value:'5h 52m', pct:'68%' },
+      { label:'Before 7PM', value:'2h 46m', pct:'32%' },
+    ],
+  },
+  {
+    kicker:'FIELD NOTE 08', source:'topArtistBySetTime',
+    figure:'71', unit:'MINUTES',
+    line:'You spent more time with Thundercat than anyone.',
+    caption:'Sunday, Sutro. You did not move for the whole set.',
+  },
+];
+
+const ARTIST_SETS = [
+  { id:'set-strokes', artistName:'The Strokes' },
+  { id:'set-charli', artistName:'Charli xcx' },
+  { id:'set-rufus', artistName:'RÜFÜS DU SOL' },
+];
+const TASK_OPTIONS = [
+  { value:'ATTEND_SET', label:'Attend this set', verification:'mint a card from this specific set' },
+  { value:'CATCH_OPENER', label:'Catch the opener', verification:'mint a card from a set whose slot index is 0' },
+  { value:'MINT_N_ONE_DAY', label:'Mint 3 cards in one day', verification:'mint 3 cards inside the configured festival day' },
+  { value:'VISIT_NEW_STAGE', label:'Try a new stage', verification:'mint at a stage absent from the fan\u2019s prior collection' },
+  { value:'FULL_SET_COMMITMENT', label:'Stay for the full set', verification:'mint this set with a completion rate of at least 0.8' },
+];
+const REWARDS = [
+  { value:'exclusive_frame', label:'Exclusive frame' },
+  { value:'artist_shoutout', label:'Artist shoutout' },
+  { value:'early_access', label:'Early access' },
+  { value:'merch_code', label:'Merch code' },
+];
+// copy ported from messageFor() in app/page.tsx (path/1-capture-offline)
+const CAM_COPY = {
+  idle:     { title:'[ LIVE VIEWFINDER ]', detail:'getUserMedia · rear camera' },
+  starting: { title:'[ LIVE VIEWFINDER ]', detail:'Starting camera…' },
+  denied:   { title:'Camera access is off', detail:'Enable the camera for this site, then tap Try again.' },
+  notfound: { title:'No camera found on this device', detail:'getUserMedia · rear camera' },
+  insecure: { title:'Camera needs a secure connection', detail:'Open this over HTTPS, not a plain LAN address.' },
+  unsupported: { title:'This browser can\u2019t open the camera', detail:'getUserMedia is unavailable here.' },
+  unknown:  { title:'Couldn\u2019t start the camera', detail:'Tap to try again.' },
+};
+
+const FRAME_LABELS = {
+  ranger_badge:'Ranger badge', trail_marker:'Trail marker', fog_layer:'Fog layer',
+  disco_bison:'Disco bison', field_notes:'Field notes',
+};
+
+const INK = '#17352f';
+const PAPER = '#eee3c3';
+const PANEL = '#f5edda';
+const ORANGE = '#d96842';
+const GOLD = '#e8cc83';
+
+class Component extends DCLogic {
+  state = {
+    screen:'capture', drawer:false, day:'Sat', pending:3, shots:0, flash:false,
+    detail:null, flipped:false, spin:'closed', console:'artist',
+    cam:'idle', camKind:null, lastShot:null, wIdx:0,
+    artistSet:'set-strokes', taskType:'CATCH_OPENER', reward:'exclusive_frame',
+    intent:'I want people to catch my opener, they always miss it',
+    copy:null, writing:false,
+    labName:'Godspeed You! Black Emperor', labRarity:0.9,
+  };
+
+  videoRef = React.createRef();
+  stream = null;
+
+  componentDidMount() { this.startCam(); }
+  componentWillUnmount() { this.stopCam(); }
+  componentDidUpdate() {
+    const v = this.videoRef.current;
+    if (v && this.stream && v.srcObject !== this.stream) v.srcObject = this.stream;
+  }
+
+  stopCam = () => {
+    if (this.stream) { this.stream.getTracks().forEach((t) => t.stop()); this.stream = null; }
+  };
+
+  // Mirrors app/page.tsx (path/1-capture-offline): the same failure kinds, same copy.
+  startCam = () => {
+    if (this.state.cam === 'starting') return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      this.setState({ cam:'error', camKind:'unsupported' });
+      return;
+    }
+    if (!window.isSecureContext) {
+      this.setState({ cam:'error', camKind:'insecure' });
+      return;
+    }
+    this.setState({ cam:'starting' });
+    navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' }, audio:false })
+      .then((stream) => {
+        this.stream = stream;
+        const v = this.videoRef.current;
+        if (v) { v.srcObject = stream; const p = v.play(); if (p && p.catch) p.catch(() => {}); }
+        this.setState({ cam:'live', camKind:null });
+      })
+      .catch((err) => {
+        const n = err && err.name;
+        const kind = n === 'NotAllowedError' || n === 'SecurityError' ? 'denied'
+          : n === 'NotFoundError' || n === 'OverconstrainedError' ? 'notfound' : 'unknown';
+        this.setState({ cam:'error', camKind:kind });
+      });
+  };
+
+  grabFrame = () => {
+    const v = this.videoRef.current;
+    if (!v || !v.videoWidth) return null;
+    const w = 500;
+    const h = Math.round((v.videoHeight / v.videoWidth) * w);
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    c.getContext('2d').drawImage(v, 0, 0, w, h);
+    try { return c.toDataURL('image/jpeg', 0.82); } catch (e) { return null; }
+  };
+
+  deckRef = React.createRef();
+
+  deckGo = (i) => {
+    const d = this.deckRef.current;
+    if (!d) return;
+    const kids = d.querySelectorAll(':scope > section');
+    const n = Math.max(0, Math.min(kids.length - 1, i));
+    if (kids[n]) d.scrollTo({ top: kids[n].offsetTop - d.offsetTop, behavior:'smooth' });
+    this.setState({ wIdx:n });
+  };
+
+  onDeckScroll = () => {
+    const d = this.deckRef.current;
+    if (!d) return;
+    const kids = [...d.querySelectorAll(':scope > section')];
+    let best = 0; let bestDist = Infinity;
+    kids.forEach((k, i) => {
+      const dist = Math.abs((k.offsetTop - d.offsetTop) - d.scrollTop);
+      if (dist < bestDist) { bestDist = dist; best = i; }
+    });
+    if (best !== this.state.wIdx) this.setState({ wIdx:best });
+  };
+
+  go = (screen) => () => this.setState({ screen, drawer:false });
+
+  shelf() {
+    return SHELF_SEEDS.map(([setId, dwell, rarity], i) => {
+      const s = SETS.find((x) => x.id === setId);
+      const stage = STAGES.find((x) => x.id === s.stageId);
+      return {
+        id:setId, artistName:s.artistName, stageName:stage.name,
+        frameVariant:pickFrameVariant(s, `fixture-device-01:${setId}`),
+        dateLabel:dayFmt.format(s.startTime).replace(',', ''),
+        setWindowLabel:fmtWindow(s), dwellLabel:`${Math.round(dwell / 60)} min`,
+        rarityScore:rarity, delay:`${i * 70}ms`,
+      };
+    });
+  }
+
+  renderVals() {
+    const st = this.state;
+    const ts = DAY_TS[st.day];
+    const showRarityMarks = this.props.showRarityMarks !== false;
+
+    const stageRows = STAGES.map((stage, i) => {
+      const onStage = SETS.filter((x) => x.stageId === stage.id).sort((a, b) => a.startTime - b.startTime);
+      const now = onStage.find((x) => ts >= x.startTime && ts < x.endTime) || null;
+      const next = onStage.find((x) => x.startTime > ts && x.startTime - ts < 6 * 3600000) || null;
+      const pct = now ? Math.round(((ts - now.startTime) / (now.endTime - now.startTime)) * 100) : 0;
+      return {
+        stage:stage.name.toUpperCase(),
+        now: now ? now.artistName : 'Dark right now',
+        window: now ? fmtWindow(now) : 'No set on this stage today',
+        headliner: !!(now && now.isHeadliner),
+        status: now ? 'LIVE' : 'DARK',
+        statusColor: now ? ORANGE : 'rgba(23,53,47,.4)',
+        pct: `${pct}%`,
+        next: next ? `${next.artistName} · ${timeFmt.format(next.startTime)}` : 'Last set of the night',
+        spotify: !!(now && now.spotifyId),
+        spotifyUrl: now && now.spotifyId ? `https://open.spotify.com/artist/${now.spotifyId}` : '#',
+        delay: `${i * 65}ms`,
+      };
+    });
+
+    const days = ['Fri', 'Sat', 'Sun'].map((d) => ({
+      label:d.toUpperCase(),
+      bg: st.day === d ? INK : 'transparent',
+      fg: st.day === d ? PANEL : INK,
+      pick: () => this.setState({ day:d }),
+    }));
+
+    const TABS = [
+      ['capture', 'CAPTURE', '16px', '16px', '50%'],
+      ['lineup', 'LINEUP', '18px', '13px', '0'],
+      ['shelf', 'SHELF', '15px', '19px', '0'],
+      ['wrapped', 'WRAPPED', '15px', '15px', '0'],
+    ];
+    const tabs = TABS.map(([id, label, w, h, r]) => {
+      const active = st.screen === id;
+      return {
+        label, iconW:w, iconH:h, iconR:r,
+        color: active ? INK : 'rgba(23,53,47,.72)',
+        iconFill: active ? ORANGE : 'transparent',
+        bg: active ? GOLD : 'transparent',
+        pick: this.go(id),
+      };
+    });
+
+    const NAV = [
+      ['capture', 'Capture', 'HOME'], ['lineup', 'Lineup', 'LIVE'],
+      ['shelf', 'Shelf', '6'], ['wrapped', 'Wrapped', 'SUN'],
+      ['artist', 'Artist Desk', 'DESK'], ['lab', 'Render Lab', 'DEV'],
+    ];
+    const navItems = NAV.map(([id, label, tag], i) => ({
+      label, tag, delay:`${60 + i * 45}ms`,
+      color: st.screen === id || st.console === id ? ORANGE : INK,
+      tagColor: tag === 'LIVE' ? ORANGE : 'rgba(23,53,47,.72)',
+      pick: () => {
+        if (id === 'artist' || id === 'lab') this.setState({ console:id, drawer:false });
+        else this.setState({ screen:id, drawer:false });
+      },
+    }));
+
+    const shelfCards = this.shelf().map((c) => ({ ...c, open: () => this.setState({ detail:c, flipped:false }) }));
+
+    const wrappedCards = [
+      { isOpening:true, bg:PAPER, hint:'SWIPE' },
+      ...WRAPPED_PANELS.map((p, i) => ({
+        isStat:true, ...p,
+        hasRows: !!p.rows,
+        rows: (p.rows || []).map((r, j) => ({ ...r, delay:`${120 + j * 90}ms` })),
+        bg: i % 3 === 0 ? ORANGE : i % 3 === 1 ? GOLD : PAPER,
+        hint:'SWIPE',
+      })),
+      { isStrip:true, bg:PAPER, hint:'SWIPE' },
+      { isLast:true, bg:ORANGE, hint:'END' },
+    ];
+
+    const deckDots = wrappedCards.map((_, i) => ({
+      w: i === st.wIdx ? '18px' : '5px',
+      bg: i === st.wIdx ? INK : 'rgba(23,53,47,.35)',
+      pick: () => this.deckGo(i),
+    }));
+
+    const stripCells = Array.from({ length:12 }, (_, i) => ({
+      bg:['#d9653b', '#dfbd71', '#587b6b', '#7d5256'][i % 4], delay:`${i * 45}ms`,
+    }));
+
+    const d = st.detail;
+    const labFrames = ['ranger_badge', 'trail_marker', 'fog_layer', 'disco_bison', 'field_notes']
+      .map((v, i) => ({ variant:v, label:FRAME_LABELS[v], delay:`${i * 60}ms` }));
+
+    return {
+      showRarityMarks, ninetyOne:0.91, eightyFour:0.84,
+      isCapture: st.screen === 'capture', isLineup: st.screen === 'lineup',
+      isShelf: st.screen === 'shelf', isWrapped: st.screen === 'wrapped',
+      drawerOpen: st.drawer,
+      openDrawer: () => this.setState({ drawer:true }),
+      closeDrawer: () => this.setState({ drawer:false }),
+      navItems, tabs, days, stageRows, shelfCards, wrappedCards, stripCells, deckDots,
+      deckRef: this.deckRef,
+      onDeckScroll: this.onDeckScroll,
+      deckNext: () => this.deckGo(st.wIdx + 1),
+      deckPrev: () => this.deckGo(st.wIdx - 1),
+
+      pendingLabel: `${st.pending} PENDING`,
+      shotLabel: st.shots === 0 ? 'HOLD TO SPOOF · TAP TO SHOOT' : `${st.shots} SAVED TO THIS DEVICE`,
+      flashOn: st.flash,
+      videoRef: this.videoRef,
+      camIdle: st.cam !== 'live',
+      camLive: st.cam === 'live',
+      camRetry: st.cam !== 'starting' && st.camKind !== 'insecure' && st.camKind !== 'unsupported',
+      camTitle: CAM_COPY[st.cam === 'error' ? (st.camKind || 'unknown') : st.cam].title,
+      camDetail: CAM_COPY[st.cam === 'error' ? (st.camKind || 'unknown') : st.cam].detail,
+      camBtn: st.cam === 'error' ? 'TRY AGAIN' : 'ENABLE CAMERA',
+      startCam: this.startCam,
+      hasShot: !!st.lastShot,
+      lastShotBg: st.lastShot ? `url("${st.lastShot}")` : 'none',
+      shoot: () => {
+        const frame = this.grabFrame();
+        this.setState((p) => ({
+          shots:p.shots + 1, pending:p.pending + 1, flash:true,
+          lastShot: frame || p.lastShot,
+        }));
+        setTimeout(() => this.setState({ flash:false }), 300);
+      },
+
+      mintName:'Amaarae',
+      mintMeta:'Duboce Triangle · 47 min observed',
+      spinOpen: st.spin !== 'closed',
+      spinReady: st.spin === 'ready' || st.spin === 'spinning',
+      spinDone: st.spin === 'done',
+      spinLabel: st.spin === 'spinning' ? 'Revealing…' : 'Amaarae',
+      spinBtn: st.spin === 'spinning' ? 'Landing your card…' : 'Reveal my frame',
+      spinAnim: st.spin === 'spinning' ? 'stubReveal 1.5s cubic-bezier(.2,.7,.15,1) both' : 'none',
+      openSpin: () => this.setState({ spin:'ready' }),
+      closeSpin: () => this.setState({ spin:'closed' }),
+      stop: (e) => e.stopPropagation(),
+      doSpin: () => {
+        if (st.spin !== 'ready') return;
+        this.setState({ spin:'spinning' });
+        setTimeout(() => this.setState({ spin:'done' }), 1500);
+      },
+      goShelf: () => this.setState({ spin:'closed', screen:'shelf' }),
+
+      detailOpen: !!d,
+      detail: d || {},
+      detailRows: d ? [
+        { k:'Stage', v:d.stageName }, { k:'Date', v:d.dateLabel },
+        { k:'Set', v:d.setWindowLabel }, { k:'Observed', v:d.dwellLabel },
+        { k:'Rarity signal', v:`${Math.round(d.rarityScore * 100)} / 100` },
+      ] : [],
+      flipTransform: st.flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+      toggleFlip: (e) => { e.stopPropagation(); this.setState((p) => ({ flipped:!p.flipped })); },
+      closeDetail: () => this.setState({ detail:null }),
+      shelfCount: `${shelfCards.length} MOMENTS`,
+
+      consoles: [['artist', 'ARTIST DESK'], ['lab', 'RENDER LAB']].map(([id, label]) => ({
+        label,
+        bg: st.console === id ? INK : 'transparent',
+        fg: st.console === id ? PANEL : INK,
+        pick: () => this.setState({ console:id }),
+      })),
+      isArtist: st.console === 'artist', isLab: st.console === 'lab',
+      artistSets:ARTIST_SETS, taskOptions:TASK_OPTIONS, rewards:REWARDS,
+      artistSet:st.artistSet, taskType:st.taskType, reward:st.reward, intent:st.intent,
+      setArtistSet:(e) => this.setState({ artistSet:e.target.value }),
+      setTaskType:(e) => this.setState({ taskType:e.target.value }),
+      setReward:(e) => this.setState({ reward:e.target.value }),
+      setIntent:(e) => this.setState({ intent:e.target.value }),
+      writeLabel: st.writing ? 'Writing…' : 'Write the task',
+      hasCopy: !!st.copy,
+      copyDesc: st.copy ? st.copy.description : '',
+      copyReward: st.copy ? st.copy.rewardFraming : '',
+      writeTask: () => {
+        this.setState({ writing:true });
+        setTimeout(() => {
+          const task = TASK_OPTIONS.find((t) => t.value === st.taskType) || TASK_OPTIONS[0];
+          const rw = (REWARDS.find((r) => r.value === st.reward) || REWARDS[0]).label.toLowerCase();
+          this.setState({
+            writing:false,
+            copy:{
+              description:`Complete this task: ${task.verification}.`,
+              rewardFraming:`Complete the task to receive the selected ${rw}.`,
+            },
+          });
+        }, 700);
+      },
+
+      labPhoto:'theme/outside-lands-2026/debug-photo.svg',
+      labFrames, labName:st.labName, labRarity:st.labRarity,
+      labRarityLabel:st.labRarity.toFixed(2),
+      setLabName:(e) => this.setState({ labName:e.target.value }),
+      setLabRarity:(e) => this.setState({ labRarity:Number(e.target.value) }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

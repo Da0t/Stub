@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="position:relative; width:100%; aspect-ratio:5/7; container-type:inline-size; border-radius:3.4cqw; overflow:hidden; background:#0b2925; font-family:Georgia, 'Times New Roman', serif; user-select:none;">
+
+  <sc-if value="{{ usePhoto }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; inset:0; background-color:#0b2925; background-image:{{ photoBg }}; background-size:cover; background-position:center;"></div>
+  </sc-if>
+  <sc-if value="{{ useGrad }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute; inset:0; background:{{ photoGrad }}"></div>
+    <div style="position:absolute; left:58%; top:14%; width:34cqw; height:34cqw; border-radius:50%; background:{{ sunColor }}; opacity:.85;"></div>
+    <div style="position:absolute; left:-14%; right:-14%; bottom:-6%; height:44%; border-radius:50% 50% 0 0 / 70% 70% 0 0; background:#142a28; opacity:.92;"></div>
+    <div style="position:absolute; left:-30%; right:14%; bottom:-10%; height:34%; border-radius:50% 50% 0 0 / 80% 80% 0 0; background:#0d1f1e; opacity:.9;"></div>
+  </sc-if>
+
+  <div style="position:absolute; inset:0; background:{{ treatment }}"></div>
+
+  <sc-if value="{{ ruled }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; inset:0; background:repeating-linear-gradient(180deg, transparent 0 5.5cqw, rgba(34,27,22,.16) 5.5cqw 5.7cqw);"></div>
+  </sc-if>
+
+  <div style="position:absolute; inset:0; box-shadow:{{ borderShadow }}; border-radius:3.4cqw; pointer-events:none;"></div>
+
+  <sc-if value="{{ hasPlaque }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute; left:{{ plaqueInset }}; right:{{ plaqueInset }}; top:9.4cqw; padding:2.4cqw 3cqw; border-radius:{{ plaqueRadius }}; background:{{ plaqueBg }}; border:0.8cqw solid {{ plaqueBorder }}; text-align:center;">
+      <div style="font-family:Arial, Helvetica, sans-serif; font-weight:800; font-size:2.4cqw; letter-spacing:.14em; color:{{ plaqueInk }};">{{ plaqueText }}</div>
+      <div style="margin-top:1.4cqw; font-weight:800; line-height:1.02; letter-spacing:-.02em; font-size:{{ titleSize }}; font-family:{{ titleFamily }}; color:{{ titleColor }}; text-transform:{{ titleCase }}; text-shadow:0 0.2cqw 0 rgba(107,137,119,.9);">{{ artistName }}</div>
+      <div style="margin-top:1.2cqw; font-family:Arial, Helvetica, sans-serif; font-weight:700; font-size:2.6cqw; letter-spacing:.1em; color:{{ plaqueInk }};">{{ stageLine }}</div>
+      <sc-if value="{{ pointer }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; right:-6cqw; top:50%; transform:translateY(-50%); width:0; height:0; border-top:3.8cqw solid transparent; border-bottom:3.8cqw solid transparent; border-left:5.4cqw solid #6f452b; filter:drop-shadow(0.3cqw 0 0 #f2e6c8) drop-shadow(-0.3cqw 0 0 #f2e6c8);"></div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ bottomTitle }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; left:8cqw; right:8cqw; bottom:{{ titleBottom }}; text-align:center;">
+      <div style="font-weight:800; line-height:1.02; letter-spacing:-.02em; font-size:{{ titleSize }}; font-family:{{ titleFamily }}; color:{{ titleColor }}; text-transform:{{ titleCase }}; text-shadow:{{ titleShadow }};">{{ artistName }}</div>
+      <div style="margin-top:1.8cqw; font-family:Arial, Helvetica, sans-serif; font-weight:800; font-size:2.6cqw; letter-spacing:.12em; color:{{ subColor }};">{{ stageLine }}</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ discoBall }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; right:11cqw; top:0; width:0.6cqw; height:9cqw; background:#fffdf7;"></div>
+    <div style="position:absolute; right:5.5cqw; top:8.6cqw; width:19.6cqw; height:19.6cqw; border-radius:50%; border:0.6cqw solid #fffdf7; background:#d8e8eb; background-image:linear-gradient(90deg, rgba(0,0,0,.14) 1px, transparent 1px), linear-gradient(180deg, rgba(0,0,0,.14) 1px, transparent 1px); background-size:3cqw 3cqw; box-shadow:0 0 6cqw rgba(216,232,235,.45);"></div>
+    <div style="position:absolute; left:21.6cqw; top:115.6cqw; width:2cqw; height:6.6cqw; background:#0b2925;"></div>
+    <div style="position:absolute; left:32cqw; top:115.6cqw; width:1.8cqw; height:6.2cqw; background:#0b2925;"></div>
+    <div style="position:absolute; left:15.6cqw; top:105.8cqw; width:22cqw; height:12.4cqw; border-radius:50%; background:#0b2925; transform:rotate(-4.6deg);"></div>
+    <div style="position:absolute; left:12.6cqw; top:105cqw; width:11.2cqw; height:11.2cqw; border-radius:50%; background:#0b2925;"></div>
+    <div style="position:absolute; left:11cqw; top:104.2cqw; width:7.6cqw; height:7.6cqw; border-radius:50%; border:0.8cqw solid transparent; border-top-color:#d9aa4f; border-left-color:#d9aa4f; transform:rotate(-28deg);"></div>
+  </sc-if>
+
+  <sc-if value="{{ tape }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; left:6.8cqw; top:7cqw; width:19.2cqw; height:5.6cqw; background:rgba(239,216,167,.82); transform:rotate(-4.6deg);"></div>
+  </sc-if>
+
+  <div style="position:absolute; left:8.4cqw; right:8.4cqw; bottom:8.4cqw; display:flex; align-items:center; justify-content:space-between; gap:2cqw; padding:2.2cqw 3.2cqw; border-radius:2.2cqw; background:{{ pillFill }}; opacity:.96;">
+    <div style="display:flex; flex-direction:column; gap:0.4cqw; font-family:Arial, Helvetica, sans-serif; text-align:left;">
+      <span style="font-weight:700; font-size:2.4cqw; letter-spacing:.09em; color:{{ pillInk }};">{{ dateUpper }}</span>
+      <span style="font-weight:600; font-size:2.1cqw; opacity:.78; color:{{ pillInk }};">{{ setWindowLabel }}</span>
+    </div>
+    <span style="font-family:Arial, Helvetica, sans-serif; font-weight:800; font-size:2.4cqw; color:{{ pillInk }};">{{ dwellLabel }}</span>
+  </div>
+
+  <sc-if value="{{ showRarity }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; left:{{ rarityLeft }}; right:{{ rarityRight }}; top:{{ rarityTop }}; width:9.6cqw; height:9.6cqw; border-radius:50%; background:{{ rarityFill }}; border:0.5cqw solid {{ rarityInk }}; display:grid; place-items:center;">
+      <div style="width:3.4cqw; height:3.4cqw; transform:rotate(45deg); background:{{ rarityInk }};"></div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:300,&quot;height&quot;:420},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ranger_badge&quot;,&quot;trail_marker&quot;,&quot;fog_layer&quot;,&quot;disco_bison&quot;,&quot;field_notes&quot;],&quot;default&quot;:&quot;ranger_badge&quot;,&quot;tsType&quot;:&quot;FrameVariant&quot;},&quot;artistName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;The Strokes&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;stageName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Lands End&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dateLabel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Sat Aug 8&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;setWindowLabel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;8:35 – 10:00 PM&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dwellLabel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;47 min&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;rarityScore&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.84,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.01,&quot;tsType&quot;:&quot;number&quot;},&quot;showRarity&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;photo&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const PAL = {
+  forest:'#173f35', deepForest:'#0b2925', cream:'#f2e6c8', kraft:'#b98f59',
+  ink:'#221b16', orange:'#d35c32', gold:'#d9aa4f', fog:'#dce5df',
+  sky:'#75939a', disco:'#d8e8eb', white:'#fffdf7', brown:'#6f452b',
+};
+
+const FRAMES = {
+  ranger_badge: {
+    treatment:'linear-gradient(180deg, rgba(11,41,37,0) 40%, rgba(11,41,37,.32) 78%, rgba(11,41,37,.75) 100%)',
+    borderShadow:`inset 0 0 0 2cqw ${PAL.cream}, inset 0 0 0 2.6cqw ${PAL.deepForest}, inset 0 0 0 3.2cqw ${PAL.forest}`,
+    hasPlaque:true, plaqueBg:PAL.forest, plaqueBorder:PAL.cream, plaqueInk:PAL.cream,
+    plaqueText:'OUTSIDE LANDS • PARK PASS', plaqueRadius:'6cqw', plaqueInset:'11cqw',
+    titleColor:PAL.cream, titleFamily:'Georgia, serif', titleCase:'uppercase', titleSize:'7.2cqw',
+    pillFill:PAL.cream, pillInk:PAL.forest,
+    rarityFill:PAL.gold, rarityInk:PAL.deepForest, rarityTop:'8.4cqw', rarityLeft:'auto', rarityRight:'8.4cqw',
+  },
+  trail_marker: {
+    treatment:'linear-gradient(180deg, rgba(68,44,28,.03) 30%, rgba(30,20,13,.72) 100%)',
+    borderShadow:`inset 0 0 0 1.8cqw ${PAL.kraft}`,
+    hasPlaque:true, plaqueBg:PAL.brown, plaqueBorder:PAL.cream, plaqueInk:PAL.cream,
+    plaqueText:'TRAIL MARKER', plaqueRadius:'1.6cqw', plaqueInset:'6cqw', pointer:true,
+    titleColor:PAL.cream, titleFamily:'Georgia, serif', titleCase:'uppercase', titleSize:'7.4cqw',
+    pillFill:PAL.brown, pillInk:PAL.cream,
+    rarityFill:PAL.brown, rarityInk:PAL.cream, rarityTop:'45cqw', rarityLeft:'6cqw', rarityRight:'auto',
+  },
+  fog_layer: {
+    treatment:'linear-gradient(150deg, rgba(235,242,237,.28) 0%, rgba(216,229,223,.72) 45%, rgba(150,173,174,.36) 70%, rgba(18,48,47,.78) 100%)',
+    borderShadow:`inset 0 0 0 0.8cqw rgba(242,230,200,.92)`,
+    hasPlaque:false, bottomTitle:true,
+    titleColor:PAL.white, titleFamily:'Georgia, serif', titleCase:'none', titleSize:'10.2cqw',
+    titleShadow:'0 0.4cqw 1.6cqw rgba(0,0,0,.45)', subColor:PAL.white, titleBottom:'25cqw',
+    pillFill:PAL.deepForest, pillInk:PAL.cream,
+    rarityFill:PAL.forest, rarityInk:PAL.cream, rarityTop:'8.4cqw', rarityLeft:'auto', rarityRight:'8.4cqw',
+  },
+  disco_bison: {
+    treatment:'linear-gradient(135deg, rgba(211,92,50,.15) 0%, rgba(73,34,93,.12) 55%, rgba(11,41,37,.72) 100%)',
+    borderShadow:`inset 0 0 0 2.2cqw ${PAL.orange}, inset 0 0 0 2.8cqw ${PAL.deepForest}, inset 0 0 0 3.4cqw ${PAL.gold}`,
+    hasPlaque:false, bottomTitle:true, discoBall:true,
+    titleColor:PAL.white, titleFamily:'Arial, Helvetica, sans-serif', titleCase:'uppercase', titleSize:'9.4cqw',
+    titleShadow:`0.6cqw 0.6cqw 0 ${PAL.orange}`, subColor:PAL.gold, titleBottom:'36cqw',
+    pillFill:PAL.orange, pillInk:PAL.white,
+    rarityFill:PAL.gold, rarityInk:PAL.deepForest, rarityTop:'9.6cqw', rarityLeft:'9.6cqw', rarityRight:'auto',
+  },
+  field_notes: {
+    treatment:'linear-gradient(0deg, rgba(184,139,81,.42), rgba(184,139,81,.42))',
+    borderShadow:`inset 0 0 0 2.4cqw ${PAL.cream}`,
+    hasPlaque:false, bottomTitle:true, ruled:true, tape:true,
+    titleColor:PAL.ink, titleFamily:'"Comic Sans MS", "Segoe Print", cursive', titleCase:'none', titleSize:'8.2cqw',
+    titleShadow:'none', subColor:'rgba(34,27,22,.72)', titleBottom:'17cqw',
+    pillFill:'rgba(242,230,200,.9)', pillInk:PAL.ink,
+    rarityFill:PAL.orange, rarityInk:PAL.cream, rarityTop:'8.4cqw', rarityLeft:'auto', rarityRight:'8.4cqw',
+  },
+};
+
+const PHOTOS = [
+  ['#6f8e95','#2a3f45','#efb454'], ['#6f4c78','#241a2e','#dc693e'],
+  ['#4f6f5a','#16241c','#e6c96a'], ['#8a5a4a','#2a1712','#f0c07a'],
+  ['#5b6f8a','#181f2c','#dfe7ee'], ['#7a6a3f','#241f12','#f4d98b'],
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const variant = p.variant || 'ranger_badge';
+    const f = FRAMES[variant] || FRAMES.ranger_badge;
+    const name = p.artistName || 'Artist';
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    const ph = PHOTOS[h % PHOTOS.length];
+    const stage = (p.stageName || '').toUpperCase();
+    const rarity = typeof p.rarityScore === 'number' ? p.rarityScore : 0;
+    return {
+      artistName: name,
+      stageLine: variant === 'disco_bison' ? stage + ' • PARK AFTER DARK'
+        : variant === 'trail_marker' ? '→  ' + stage : stage,
+      dateUpper: (p.dateLabel || '').toUpperCase(),
+      setWindowLabel: p.setWindowLabel || '',
+      dwellLabel: p.dwellLabel || '',
+      usePhoto: !!p.photo,
+      useGrad: !p.photo,
+      photoBg: p.photo ? `url("${p.photo}")` : 'none',
+      photoGrad: `linear-gradient(165deg, ${ph[0]} 0%, ${ph[1]} 100%)`,
+      sunColor: ph[2],
+      treatment: f.treatment,
+      borderShadow: f.borderShadow,
+      hasPlaque: !!f.hasPlaque,
+      bottomTitle: !!f.bottomTitle,
+      discoBall: !!f.discoBall,
+      ruled: !!f.ruled,
+      tape: !!f.tape,
+      pointer: !!f.pointer,
+      plaqueBg: f.plaqueBg, plaqueBorder: f.plaqueBorder, plaqueInk: f.plaqueInk,
+      plaqueText: f.plaqueText, plaqueRadius: f.plaqueRadius, plaqueInset: f.plaqueInset,
+      titleColor: f.titleColor, titleFamily: f.titleFamily, titleCase: f.titleCase,
+      titleSize: name.length > 16 ? `calc(${f.titleSize} * .68)` : f.titleSize,
+      titleShadow: f.titleShadow || 'none',
+      titleBottom: f.titleBottom || '22cqw',
+      subColor: f.subColor || f.plaqueInk,
+      pillFill: f.pillFill, pillInk: f.pillInk,
+      showRarity: (p.showRarity !== false) && rarity > 0.7,
+      rarityFill: f.rarityFill, rarityInk: f.rarityInk,
+      rarityTop: f.rarityTop, rarityLeft: f.rarityLeft, rarityRight: f.rarityRight,
+    };
+  }
+}
+
+</script>
+</body>
+</html>
