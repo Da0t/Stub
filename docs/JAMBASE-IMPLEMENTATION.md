@@ -165,7 +165,7 @@ Phase 1 built the scaffolding. Your job is to make it correct and run it.
 | `convex/grid.ts` | Exports `upsertEvent`, `upsertStages`, `upsertSets`. |
 | `lib/types.ts` | `Grid`, `SetRecord`, `Stage` contracts. Do not redefine these locally. |
 
-**A mismatch to fix:** `scripts/bootstrap-grid.ts` expects a mutation called `api.grid.bootstrap`, but `convex/grid.ts` actually exports three separate mutations. Either add a `bootstrap` wrapper in `convex/grid.ts` or call the three in sequence from the script. Pick one and make them agree.
+**Resolved:** `convex/grid.ts` now exports a `bootstrap` mutation alongside `upsertEvent` / `upsertStages` / `upsertSets`, so `scripts/bootstrap-grid.ts` and the Convex layer agree. (This was a real mismatch earlier in the build; it is fixed.)
 
 The `Grid` shape you must produce (from `lib/types.ts`):
 
@@ -358,7 +358,7 @@ These are yours to enforce and nobody downstream can fix them for you.
 4. **Reconcile `lib/grid/normalize.ts`** against the real shape. It was written for flat performance slots.
 5. **Enrich.** Batch politely, cache to disk. You are running this once, not in a loop. Do the headliners first — if you run out of time, ten enriched artists beats ninety-four unenriched.
 6. **Resolve the stage/time gap** per whichever §5 option you chose.
-7. **Write to Convex.** Fix the `api.grid.bootstrap` vs `upsertEvent`/`upsertStages`/`upsertSets` mismatch (§4).
+7. **Write to Convex** via `api.grid.bootstrap`.
 8. **Commit the enriched `data/grid.sample.json`.** This file *is* the demo — the app reads it today and will keep reading it as the offline fallback.
 9. **Verify against the geo tests.** `npm test` — the geo suite asserts every set's `stageId` exists in the polygons and that Lands End is programmed. If you break the grid, those 82 tests tell you immediately.
 

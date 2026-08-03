@@ -58,7 +58,7 @@ Every path built against fixtures. Nothing is joined. This is the remaining proj
 - [x] ✅ JamBase client fixed — `api.data.jambase.com/v3`, Bearer auth
 - [ ] Bootstrap actually run against the live API
 - [ ] **Careful:** `normalize.ts` drops any set whose stage has no polygon, and JamBase supplies no stage names. Back up `data/grid.sample.json` and diff before overwriting — a blind run can empty the grid the demo reads.
-- [ ] `api.grid.bootstrap` vs `upsertEvent`/`upsertStages`/`upsertSets` naming mismatch resolved
+- [x] ✅ `api.grid.bootstrap` exists — the earlier naming mismatch with `upsertEvent`/`upsertStages`/`upsertSets` is fixed
 - [ ] `CONVEX_URL` set — `bootstrap-grid.ts` reads it with **no fallback**; without it the Convex write silently skips
 
 ### 3.4 Shelf and mint 🔒
