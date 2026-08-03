@@ -802,7 +802,8 @@ class Component extends DCLogic {
   shelf() {
     if (this.state.liveShelf && this.state.liveShelf.length) {
       return this.state.liveShelf.map((card, i) => {
-        const set = SETS.find((s) => s.artistName === card.artistName && s.stageId === STAGES.find((stage) => stage.name === card.stageName)?.id)
+        const stage = STAGES.find((candidate) => candidate.name.toLowerCase() === String(card.stageName).toLowerCase());
+        const set = (stage ? SETS.find((s) => s.artistName === card.artistName && s.stageId === stage.id) : undefined)
           || SETS.find((s) => s.artistName === card.artistName);
         return {
           id:card.id, artistName:card.artistName, stageName:card.stageName,
