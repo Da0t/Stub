@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "rm -rf dist && mkdir -p dist/server/.next && cp -R .next/standalone/. dist/server && cp -R .next/static dist/server/.next/static && cp dist/server/server.js dist/server/index.js",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
