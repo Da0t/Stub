@@ -11,6 +11,7 @@ const ITEMS = [
   { href: "/wrapped", label: "Wrapped", tag: null },
   { href: "/artist", label: "Artist Desk", tag: "DESK" },
   { href: "/debug/frames", label: "Render Lab", tag: "DEV" },
+  { href: "/demo", label: "Demo", tag: "DEMO" },
 ] as const;
 
 export function Drawer({
