@@ -70,10 +70,13 @@ function mapGetUserMediaError(err: unknown): CameraError {
 export async function startCamera(video: HTMLVideoElement): Promise<void> {
   if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
     // Most often this is a non-secure context (LAN IP over plain HTTP).
-    const secure =
+    // The flag was inverted here: `isSecureContext === false` means the page is
+    // INSECURE, so reporting "unsupported" sent people chasing browser support
+    // when the real cause was http:// on a LAN IP.
+    const insecure =
       typeof window !== "undefined" && window.isSecureContext === false;
     throw new CameraError(
-      secure ? "unsupported" : "insecure",
+      insecure ? "insecure" : "unsupported",
       "getUserMedia is unavailable (needs a secure context)."
     );
   }
@@ -85,6 +88,10 @@ export async function startCamera(video: HTMLVideoElement): Promise<void> {
     return;
   }
 
+  // Prefer the rear camera (what you want in a crowd), but fall back to any
+  // camera. A laptop has no "environment" device at all, and Safari answers
+  // that constraint with OverconstrainedError rather than quietly substituting
+  // the front camera — which made the capture screen look broken on a Mac.
   let stream: MediaStream;
   try {
     stream = await navigator.mediaDevices.getUserMedia({
@@ -92,7 +99,15 @@ export async function startCamera(video: HTMLVideoElement): Promise<void> {
       audio: false,
     });
   } catch (err) {
-    throw mapGetUserMediaError(err);
+    const name = (err as { name?: string })?.name;
+    if (name !== "OverconstrainedError" && name !== "NotFoundError") {
+      throw mapGetUserMediaError(err);
+    }
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    } catch (fallbackErr) {
+      throw mapGetUserMediaError(fallbackErr);
+    }
   }
 
   activeStream = stream;
@@ -191,6 +206,39 @@ export async function capture(): Promise<CapturedPhoto> {
   };
 
   // Write-before-resolve. This await is the whole product claim.
+  await putPhoto(photo);
+  return photo;
+}
+
+/**
+ * Capture from a picked file instead of a live stream.
+ *
+ * Same record, same warm position, same write-before-resolve — the only
+ * difference is where the pixels came from. A file input with
+ * `capture="environment"` opens the camera directly on a phone and a picker on
+ * a laptop, so this path works on hardware where getUserMedia does not: no
+ * rear camera, a denied permission, or an insecure context (http:// on a LAN
+ * IP, where getUserMedia is unavailable by spec and no code can fix it).
+ *
+ * The photo is still the user's own, so the card face is still theirs — the
+ * product claim is unchanged.
+ */
+export async function captureFromFile(file: Blob): Promise<CapturedPhoto> {
+  if (!file || file.size === 0) {
+    throw new CameraError("unknown", "Picked file was empty.");
+  }
+
+  const warm = getWarmPosition();
+  const photo: CapturedPhoto = {
+    clientId: newClientId(),
+    ts: Date.now(),
+    lat: warm ? warm.lat : NO_FIX,
+    lng: warm ? warm.lng : NO_FIX,
+    accuracy: warm ? warm.accuracy : null,
+    blob: file,
+    synced: false,
+  };
+
   await putPhoto(photo);
   return photo;
 }

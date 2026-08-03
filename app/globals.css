@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
+/*
+ * Design-system tokens (SPEC.md §2). One mode only — the "cream field guide"
+ * language from Artist Desk (path 8) is now the app-wide look. No dark-mode
+ * split: --background/--foreground below stay fixed, not media-queried.
+ *
+ * Rules that keep this coherent (SPEC.md §2 — not negotiable):
+ *   - borders are 2px solid var(--ink), never 1px or a hairline alpha
+ *   - border-radius: 0 on every surface except the shutter, status dots,
+ *     and pill buttons (99px)
+ *   - shadows are hard offsets — Npx (N+1)px 0 var(--ink) — never blurred
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #eee3c3;
+  --panel: #f5edda;
+  --ink: #17352f;
+  --accent: #d96842;
+  --alt: #e8cc83;
+  --desk: #e4d9b5;
+  --shadow-ink: #17352f;
+
+  --font-display: Georgia, "Times New Roman", serif;
+  --font-sans: Arial, Helvetica, sans-serif;
+
+  --background: var(--paper);
+  --foreground: var(--ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
