@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "postbuild": "rm -rf dist && mkdir -p dist/server/.next dist/.openai && cp -R .next/standalone/. dist/server && cp -R .next/static dist/server/.next/static && cp dist/server/server.js dist/server/index.js && cp .openai/hosting.json dist/.openai/hosting.json",
+    "postbuild": "rm -rf dist && mkdir -p dist/server/.next dist/.openai && cp -LR .next/standalone/. dist/server && cp -LR .next/static dist/server/.next/static && cp dist/server/server.js dist/server/index.js && cp .openai/hosting.json dist/.openai/hosting.json",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
