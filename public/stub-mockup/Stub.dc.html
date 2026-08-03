@@ -696,7 +696,7 @@ const GOLD = '#e8cc83';
 
 class Component extends DCLogic {
   state = {
-    screen:'capture', drawer:false, day:'Sat', pending:3, shots:0, flash:false,
+    screen:new URLSearchParams(window.location.search).get('screen') === 'shelf' ? 'shelf' : 'capture', drawer:false, day:'Sat', pending:3, shots:0, flash:false,
     detail:null, flipped:false, spin:'closed', console:'artist',
     cam:'idle', camKind:null, lastShot:null, wIdx:0,
     artistSet:'set-strokes', taskType:'CATCH_OPENER', reward:'exclusive_frame',

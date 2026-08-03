@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MintPrompt } from '@/components/mint/MintPrompt';
 import { SpinSheet } from '@/components/mint/SpinSheet';
 import { CardDetail } from '@/components/shelf/CardDetail';
@@ -86,6 +86,12 @@ function ShelfContent() {
 }
 
 export default function ShelfPage() {
+  useEffect(() => {
+    window.location.replace('/demo?screen=shelf');
+  }, []);
+
+  return null;
+  /*
   const client = useMemo(
     () => createFixtureMintClient({ shelf: INITIAL_SHELF, mintableNow: MINTABLES, latencyMs: 180 }),
     [],
@@ -95,4 +101,5 @@ export default function ShelfPage() {
       <ShelfContent />
     </MintClientProvider>
   );
+  */
 }
