@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { AppShell } from "@/components/shell/AppShell";
 
 export const metadata: Metadata = {
   title: "Wrapped for the Weekend",
@@ -29,8 +30,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <body className="min-h-full bg-black text-white antialiased">
-        {children}
+      <body className="min-h-full antialiased">
+        <AppShell>{children}</AppShell>
         {/*
           Service worker registration. Kept as an inline script rather than a
           separate client component so app shell + grid caching are live before
